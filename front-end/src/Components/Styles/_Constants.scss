@@ -1,0 +1,29 @@
+/* PADDING */
+$p1: 60px;      /*  < full hd     */
+$p2: 75px;      /*  full hd       */
+$p3: 112px;     /*  between full hd and 4k   */
+$p4: 150px;     /*  4k   */
+
+/* TRANSITION */
+$t: 200ms;
+
+/* LINE HEIGHT */
+$lh1: 24px;     /*  < full hd     */
+$lh2: 36px;     /*  full hd       */
+$lh3: 45px;     /*  between full hd and 4k   */
+$lh4: 72px;    /*  4k   */
+
+/* SCREEN SIZE BREAKPOINTS, max height per each, except $ss8 which is min height */
+$ss1: 400px;
+$ss2: 768px;
+$ss3min: 769px;
+$ss3: 1366px;
+$ss4: 1680px;
+$ss5: 1920px;     /*    full hd           */
+$ss6min: 1921px;
+$ss6: 2474px;     /*    1920px + 554px    */
+$ss7min: 2475px;
+$ss7: 3028px;     /*    3028px + 554px    */
+$ss8: 3582px;     /*    3028px + 554px    */
+$ss9min: 3583px;     /*    >3582px           */
+$ss9: 3840px;

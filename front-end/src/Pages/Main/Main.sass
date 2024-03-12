@@ -1,0 +1,113 @@
+@import '../../Components/Styles/Colors'
+@import '../../Components/Styles/Constants'
+@import '../../Components/Styles/Text'
+
+
+.home_menu
+  z-index: 2
+  background: var(--fourth-color)
+  text-align: center
+  position: fixed
+  width: 100vw
+  margin-top: 0
+
+.home_menu_name
+  position: absolute
+  left: 0
+  color: $fc1
+  transition: $t
+  &:hover
+    color: var(--primary-color)
+
+.home_menu_links_parent
+  text-align: center
+
+.home_menu_links
+  color: $fc1
+  &:first-child
+    margin-left: 0
+  transition: $t
+  &:hover
+    color: $fc4
+
+
+.home_menu_theme
+  padding: 2px
+  user-select: none
+
+.home_menu_theme:hover
+  cursor: pointer
+
+
+@media screen and (min-width: $ss7min)
+  .home_menu
+    line-height: $lh3*2
+  .home_menu_name
+    margin-left: $lh3*2
+  .home_menu_links
+    margin-left: $lh3*2
+
+@media screen and (max-width: $ss6)
+  .home_menu
+    line-height: $lh3*1.5
+  .home_menu_name
+    margin-left: $lh3*1.5
+  .home_menu_link
+    margin-left: $lh3*1.5
+
+
+@media screen and (max-width: $ss5)
+  .home_menu
+    line-height: $lh3
+  .home_menu_name
+    margin-left: $lh3
+  .home_menu_links
+    margin-left: $lh3
+
+@media screen and (max-width: $ss3)
+  .home_menu
+    line-height: $lh2
+  .home_menu_name
+    line-height: $lh2
+    margin-left: $lh2
+    position: relative
+    float: left
+  .home_menu_links_parent
+    position: absolute
+    right: 0
+    margin-top: $lh2
+    height: 300px
+    width: 300px
+    transform: translateX(300px)
+    background: $bc1
+    display: flex
+    justify-content: space-around
+    flex-direction: column
+    align-items: center
+  .home_menu_links
+    margin-left: 0
+  .home_menu_button
+    position: absolute
+    right: 0
+    margin-right: $lh2
+    cursor: pointer
+    &:hover
+      .home_menu_button_line
+        background: $fc4
+      .home_menu_button_line1
+        transform: translateY(5px) rotate(90deg)
+      .home_menu_button_line2
+        transform: translateY(-7px) rotate(-180deg)
+  .home_menu_button_line
+    background: $fc1
+    transition: $t
+    width: 22px
+    height: 2px
+  .home_menu_button_line1
+    margin-top: 11px
+  .home_menu_button_line2
+    margin-top: 10px
+
+.toggleMenuChange
+  transition: $t
+  transform: translateX(0px)

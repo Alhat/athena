@@ -1,0 +1,55 @@
+/*
+0-400 resolution (ss1),
+401-768 resolution (ss2),
+769-1366 resolution (ss2),
+1367-1920 resolution (ss3),
+1921-2474 resolution(ss4),
+2474-3028 resolution (ss5),
+3028-3582 resolution (ss6),
+> 3582 resolution (ss7)
+*/
+
+$ss1-fs1: 10px;
+$ss1-fs2: 12px;
+$ss1-fs3: $ss1-fs1 * 2;
+$ss1-fs4: 30px;
+
+$ss2-fs1: 11px;
+$ss2-fs2: 13px;
+$ss2-fs3: $ss2-fs1 * 2;
+$ss2-fs4: 40px;
+
+$ss3-fs1: 13px;
+$ss3-fs2: 14px;
+$ss3-fs3: $ss3-fs1 * 2;
+$ss3-fs4: 55px;
+
+$ss4-fs1: 14px;
+$ss4-fs2: 15px;
+$ss4-fs3: $ss4-fs1 * 2;
+$ss4-fs4: 60px;
+
+$ss5-fs1: 14px;
+$ss5-fs2: 15px;
+$ss5-fs3: $ss5-fs1 * 2;
+$ss5-fs4: 65px;
+
+$ss6-fs1: 20px;
+$ss6-fs2: 22px;
+$ss6-fs3: $ss6-fs1 * 2;
+$ss6-fs4: 90px;
+
+$ss7-fs1: 22px;
+$ss7-fs2: 24px;
+$ss7-fs3: $ss7-fs1 * 2;
+$ss7-fs4: 100px;
+
+$ss8-fs1: 26px;
+$ss8-fs2: 28px;
+$ss8-fs3: $ss8-fs1 * 2;
+$ss8-fs4: 120px;
+
+$ss9-fs1: 28px;
+$ss9-fs2: 30px;
+$ss9-fs3: $ss9-fs1 * 2;
+$ss9-fs4: 120px;

@@ -1,0 +1,20 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+
+# Logs
+*.log
+
+# Operating System specific files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.idea
+*.swp
+*.swo
+
+# Optional npm cache directory
+.npm

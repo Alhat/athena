@@ -1,0 +1,21 @@
+.column-toplevel {
+    background-color: var(--primary-color);
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .column-toplevel h1 {
+    font-family: var(--font-secondary);
+    color: white;
+    align-self: center;
+  }
+  
+  .column {
+    background-color: var(--fourth-color);
+    border-radius: 8px;
+    padding: 10px;
+    flex-grow: 1;
+  }

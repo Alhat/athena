@@ -1,0 +1,10 @@
+.main-toplevel {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  @media screen and (max-width: 1068px) {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  gap: 20px;
+  padding: 20px;
+  height: 92.5vh;
+}
