@@ -4,7 +4,7 @@ const GPT_API_URL =
   "https://api.openai.com/v1/engines/davinci-codex/completions";
 const GPT_API_KEY = process.env.GPT_API_KEY;
 
-async function getGPTResponse(prompt) {
+async function takePrompt(prompt) {
   try {
     const response = await axios.post(
       GPT_API_URL,
@@ -25,4 +25,4 @@ async function getGPTResponse(prompt) {
   
 }
 
-module.exports = { getGPTResponse };
+module.exports = { takePrompt };
