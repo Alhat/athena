@@ -25,12 +25,12 @@ export default function NavBar({ session }: { session: Session | null }) {
           <Link href="/" className="flex items-center font-display text-2xl">
             <Image
               src="/logo.png"
-              alt="Precedent logo"
-              width="30"
-              height="30"
+              alt="Athena logo"
+              width="50"
+              height="50"
               className="mr-2 rounded-sm"
             ></Image>
-            <p>Precedent</p>
+            <p>Athena</p>
           </Link>
           <div>
             {session ? (
