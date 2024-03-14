@@ -1,9 +1,10 @@
 Make sure to add a .env with your MongoDB URI. It is referenced in the server.js.
-The variable should be MONGO_URI=<your MongoDB URI> 
+The variable should be MONGO_URI="<your MongoDB URI>"
 
-Also set up the GPT_API_KEY=<the api key here>
+Also set up the GPT_API_KEY="<the api key here>"
 DO NOT ADD THE .env TO THE GITHUB!
 
+Introspection command: npx prisma db pull
 When a Schema is changed, make sure to run 'prisma generate' in the root of the back-end
 
 my-express-app/

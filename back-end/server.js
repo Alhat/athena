@@ -21,7 +21,7 @@ app.use((err, req, res, next) => {
 });
 
 // Define routes
-const gptRoute = require('./src/routes/gptRoutes'); // Changed 'routes/gptRoute' to 'src/routes/gptRoutes'
+const gptRoute = require('./src/routes/gptRoutes');
 app.use('/api/gpt', gptRoute);
 
 const PORT = process.env.PORT || 5000;
