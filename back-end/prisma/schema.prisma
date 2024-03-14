@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model assignment_data {
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  assignment_grade  Float
+  assignment_weight Float
+  completion_date   BigInt
+  course            String
+  creation_date     BigInt
+  current_grade     Float
+  description       String
+  due_date          BigInt
+  gpt_plan          String
+  link              String
+  passing_grade     Float
+  progress          BigInt
+  start_date        BigInt
+  subject           String
+  title             String
+  user              String
+}
+
+model personal_data {
+  id              String @id @default(auto()) @map("_id") @db.ObjectId
+  completion_date BigInt
+  creation_date   BigInt
+  description     String
+  expiration_date BigInt
+  gpt_plan        String
+  link            String
+  priority        BigInt
+  progress        BigInt
+  start_date      BigInt
+  title           String
+  user            String
+}

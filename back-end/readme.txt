@@ -4,6 +4,8 @@ The variable should be MONGO_URI=<your MongoDB URI>
 Also set up the GPT_API_KEY=<the api key here>
 DO NOT ADD THE .env TO THE GITHUB!
 
+When a Schema is changed, make sure to run 'prisma generate' in the root of the back-end
+
 my-express-app/
 ├── node_modules/
 ├── src/
