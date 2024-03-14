@@ -1,5 +1,7 @@
 Make sure to add a .env with your MongoDB URI. It is referenced in the server.js.
 The variable should be MONGO_URI="<your MongoDB URI>"
+DATABASE_URL="<your MongoDB URI>"
+PORT=5000
 
 Also set up the GPT_API_KEY="<the api key here>"
 DO NOT ADD THE .env TO THE GITHUB!
