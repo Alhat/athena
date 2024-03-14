@@ -1,7 +1,7 @@
 const axios = require("axios");
 
 const GPT_API_URL =
-  "https://api.openai.com/v1/engines/davinci-codex/completions";
+  "https://api.openai.com/v1/chat/completions";
 const GPT_API_KEY = process.env.GPT_API_KEY;
 
 async function takePrompt(prompt) {
@@ -9,17 +9,19 @@ async function takePrompt(prompt) {
     const response = await axios.post(
       GPT_API_URL,
       {
-        prompt: prompt,
-        max_tokens: 100,
+        messages: [{role: 'system', content: prompt}],
+        model: "gpt-4"
       },
       {
         headers: { Authorization: `Bearer ${GPT_API_KEY}` }
       }
     );
 
-    return response.data.choices[0].text;
+    console.log(response);
+    console.log(response.data.choices[0])
+    return response.data.choices[0].message.content;
   } catch (error) {
-    console.error('Error calling GPT API: ' + error);
+    console.error('Error calling GPT API:', error.response ? error.response.data : error);
     return { error: 'Error calling GPT API' };
   }
   
