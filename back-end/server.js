@@ -24,5 +24,14 @@ app.use((err, req, res, next) => {
 const gptRoute = require('./src/routes/gptRoutes');
 app.use('/api/gpt', gptRoute);
 
+const dbRoute = require('./src/routes/dbRoutes');
+app.use('/api/db', dbRoute);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server started on ${PORT}`));
