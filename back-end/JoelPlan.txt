@@ -1,0 +1,46 @@
+How should the app work:
+- A user uses the app.
+- We keep track of the user.
+    - Done in express-session?
+- Get all existing tasks this user has
+- User can import assignments from Canvas to app
+    - Find assignments for this user
+    - Allow user to edit which assignments will be imported
+    - Generate task data from each assignment
+        - Get user data
+        - Generate prioritation value based on user stats
+        - Pass assignment details and user stats to GPT to generate task data
+            - returns JSON with title, sub-tasks list (description, status), estimated completion time, due date, status (to-do, in-progress, Done), time spent on task, finish date
+                - Those last three should always be to-do, 0, and null. Maybe don't ask GPT to generate to make it easier
+        - Add new task to database (for this user)
+            - There's a list of tasks for each status (to-do, in-progress, Done)
+            - The new task is inserted into the list sorted based on the prioritation value of all of the tasks
+                - Don't sort all items, we want to keep the order that the user put them in as well (the order is editable)
+    - Pass all task data to the frontend to render
+- User can upload assignment details to make a new task
+    - Take assignment title and details in text (will add options for pdf, word, and other stuff later)
+    - Generate task data from assignment
+        - Get user data
+        - Generate prioritation value based on user stats
+        - Pass assignment details and user stats to GPT to generate task data
+            - returns JSON with title, sub-tasks list (description, status), estimated completion time, due date, status (to-do, in-progress, Done), finish date
+                - Those last three should always be to-do, 0, and null. Maybe don't ask GPT to generate to make it easier
+        - Add new task to database (for this user)
+            - There's a list of tasks for each status (to-do, in-progress, Done)
+            - The new task is inserted into the list sorted based on the prioritation value of all of the tasks
+                - Don't sort all items, we want to keep the order that the user put them in as well (the order is editable)
+    - Pass all task data to the frontend to render
+- Future me problems:
+    - Order of tasks in each section is editable
+    - Can delete tasks
+    - Other stuff I'm probably forgetting
+
+-------------
+Current Plan:
+-------------
+- Make a route for generating a single task (done)
+    - No need to mess with database stuff rn, I want to clarify that shit  with the team
+    - Take in assignment title and details (including due date)
+    - Pass to GPT and get task data
+    - Return that data
+- Host the backend and let Sahil use the route????????

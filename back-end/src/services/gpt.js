@@ -1,7 +1,6 @@
 const axios = require("axios");
 
-const GPT_API_URL =
-  "https://api.openai.com/v1/chat/completions";
+const GPT_API_URL = "https://api.openai.com/v1/chat/completions";
 const GPT_API_KEY = process.env.GPT_API_KEY;
 
 async function takePrompt(prompt) {
@@ -9,22 +8,47 @@ async function takePrompt(prompt) {
     const response = await axios.post(
       GPT_API_URL,
       {
-        messages: [{role: 'system', content: prompt}],
-        model: "gpt-4"
+        messages: [{ role: "system", content: prompt }],
+        model: "gpt-4",
       },
       {
-        headers: { Authorization: `Bearer ${GPT_API_KEY}` }
+        headers: { Authorization: `Bearer ${GPT_API_KEY}` },
       }
     );
-
-    console.log(response);
-    console.log(response.data.choices[0])
     return response.data.choices[0].message.content;
   } catch (error) {
-    console.error('Error calling GPT API:', error.response ? error.response.data : error);
-    return { error: 'Error calling GPT API' };
+    console.error(
+      "Error calling GPT API:",
+      error.response ? error.response.data : error
+    );
+    return { error: "Error calling GPT API" };
   }
-  
 }
 
-module.exports = { takePrompt };
+async function generateTaskData(title, details, dueDate) {
+  const prompt = `Generate a JSON response with a breakdown of tasks into easy-to-manage subtasks and an estimated completion time for the assignment titled "${title}" with details "${details}" and due date "${dueDate}". The estimated_completion_time is in hours. The JSON should have the following format: { "title": "", "sub_tasks": [ { "description": "" } ], "estimated_completion_time": 0, "due_date": "${dueDate}" }`;
+  const gptResponse = await takePrompt(prompt);
+
+  try {
+    const taskData = JSON.parse(gptResponse);
+    taskData.status = "to-do";
+    taskData.time_spent = 0;
+    taskData.finish_date = null;
+
+    // Ensure each sub_task has a status of "to-do"
+    if (Array.isArray(taskData.sub_tasks)) {
+      taskData.sub_tasks = taskData.sub_tasks.map(subTask => ({
+        ...subTask,
+        status: "to-do"
+      }));
+    }
+
+    return taskData;
+  } catch (error) {
+    console.error("Error parsing GPT response:", error);
+    return { error: "Error parsing GPT response" };
+  }
+}
+
+
+module.exports = { takePrompt, generateTaskData };
