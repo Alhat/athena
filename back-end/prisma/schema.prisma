@@ -7,6 +7,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+type TaskDataSubTasks {
+  description String
+  status      String
+}
+
+type UserDataSettings {
+  notifications Boolean
+  theme         String
+}
+
+type UserDataUserStats {
+  average_completion_time Int
+  average_grade           Int
+  total_tasks_completed   Int
+}
+
 model assignment_data {
   id                String @id @default(auto()) @map("_id") @db.ObjectId
   assignment_grade  Float
@@ -40,4 +56,34 @@ model personal_data {
   start_date      BigInt
   title           String
   user            String
+}
+
+model sessions {
+  id      String   @id @map("_id")
+  expires DateTime @db.Date
+  session String
+
+  @@index([expires], map: "expires_1")
+}
+
+model task_data {
+  id                        String             @id @default(auto()) @map("_id") @db.ObjectId
+  created_at                String
+  description               String
+  due_date                  String
+  estimated_completion_time Int
+  priority                  Int
+  status                    String
+  sub_tasks                 TaskDataSubTasks[]
+  title                     String
+  user_id                   String
+}
+
+model user_data {
+  id               String            @id @map("_id")
+  canvas_api_token String
+  canvas_courses   String[]
+  settings         UserDataSettings
+  user_stats       UserDataUserStats
+  username         String
 }

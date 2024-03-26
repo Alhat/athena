@@ -1,0 +1,75 @@
+How should the app work:
+- A user uses the app.
+- We keep track of the user.
+    - Done in express-session?
+- Get all existing tasks this user has
+- User can import assignments from Canvas to app
+    - Find assignments for this user
+    - Allow user to edit which assignments will be imported
+    - Generate task data from each assignment
+        - Get user data
+        - Generate prioritation value based on user stats
+        - Pass assignment details and user stats to GPT to generate task data
+            - returns JSON with title, sub-tasks list (description, status), estimated completion time, due date, status (to-do, in-progress, Done), time spent on task, finish date
+                - Those last three should always be to-do, 0, and null. Maybe don't ask GPT to generate to make it easier
+        - Add new task to database (for this user)
+            - There's a list of tasks for each status (to-do, in-progress, Done)
+            - The new task is inserted into the list sorted based on the prioritation value of all of the tasks
+                - Don't sort all items, we want to keep the order that the user put them in as well (the order is editable)
+    - Pass all task data to the frontend to render
+- User can upload assignment details to make a new task
+    - Take assignment title and details in text (will add options for pdf, word, and other stuff later)
+    - Generate task data from assignment
+        - Get user data
+        - Generate prioritation value based on user stats
+        - Pass assignment details and user stats to GPT to generate task data
+            - returns JSON with title, sub-tasks list (description, status), estimated completion time, due date, status (to-do, in-progress, Done), finish date
+                - Those last three should always be to-do, 0, and null. Maybe don't ask GPT to generate to make it easier
+        - Add new task to database (for this user)
+            - There's a list of tasks for each status (to-do, in-progress, Done)
+            - The new task is inserted into the list sorted based on the prioritation value of all of the tasks
+                - Don't sort all items, we want to keep the order that the user put them in as well (the order is editable)
+    - Pass all task data to the frontend to render
+- Future me problems:
+    - Order of tasks in each section is editable
+    - Can delete tasks
+    - Other stuff I'm probably forgetting
+
+-------------
+Current Plan:
+-------------
+- Make a route for generating a single task (Done)
+    - No need to mess with database stuff rn, I want to clarify that shit  with the team
+    - Take in assignment title and details (including due date)
+    - Pass to GPT and get task data
+    - Return that data
+- Made route for setting user-id. Uploads task to MongoDB with user-id. (Done)
+    - I feel like there is some security concerns here.
+        -Security Concerns for Setting User ID:
+            It's good that you're aware of potential security concerns. 
+            Ensure that only authenticated users can set their user ID and access their tasks. 
+            Consider implementing authentication and authorization mechanisms, such as using 
+            JSON Web Tokens (JWT) or OAuth, to secure your API endpoints.
+- Make stuff for saving user_data
+    - Make a user_data collection (done)
+    - Make sure user_id is unique
+        - track a separate user name???? (GPT said so, but IDK)
+            -Tracking Separate User Name:
+                Tracking a separate user name can be useful for display purposes or for user management. 
+                It depends on your application's requirements. If you decide to include it, make sure to handle it 
+                appropriately in your authentication and user management flows.
+    - When a user is set, make sure they have a user_data document (done)
+    - Make route for fetching all of a user's tasks
+        - Use indexes with MongoDB
+    - Things user_data should keep track of:
+        - class-IDs 
+        - necessary canvas api information
+        - app settings (dark mode, notifications, and other shit)
+        - user_stats (stuff used to calculate priority)
+- Aavar
+    - Look into OAuth stuff and how it interacts with our current OAuth stuff, register the app with Canvas and get developer keys
+- Josh & Kinjal?
+    - Generate user_stats for a user
+    - Write algorithm for how user_stats are used to generate priority value
+    - Write how user_stats change overtime
+

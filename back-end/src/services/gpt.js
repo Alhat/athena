@@ -17,11 +17,7 @@ async function takePrompt(prompt) {
     );
     return response.data.choices[0].message.content;
   } catch (error) {
-    console.error(
-      "Error calling GPT API:",
-      error.response ? error.response.data : error
-    );
-    return { error: "Error calling GPT API" };
+    throw new Error("Error calling GPT API: " + (error.response ? error.response.data : error));
   }
 }
 
@@ -34,6 +30,7 @@ async function generateTaskData(title, details, dueDate) {
     taskData.status = "to-do";
     taskData.time_spent = 0;
     taskData.finish_date = null;
+    taskData.description = details;
 
     // Ensure each sub_task has a status of "to-do"
     if (Array.isArray(taskData.sub_tasks)) {
@@ -45,8 +42,7 @@ async function generateTaskData(title, details, dueDate) {
 
     return taskData;
   } catch (error) {
-    console.error("Error parsing GPT response:", error);
-    return { error: "Error parsing GPT response" };
+    throw new Error("Error parsing GPT response: " + error);
   }
 }
 
