@@ -52,7 +52,7 @@ Current Plan:
             JSON Web Tokens (JWT) or OAuth, to secure your API endpoints.
 - Make stuff for saving user_data
     - Make a user_data collection (done)
-    - Make sure user_id is unique
+    - Make sure user_id is unique (done??)
         - track a separate user name???? (GPT said so, but IDK)
             -Tracking Separate User Name:
                 Tracking a separate user name can be useful for display purposes or for user management. 

@@ -71,7 +71,7 @@ app.post('/api/session/set-user', async (req, res) => {
       await prisma.user_data.create({
         data: {
           id: user_id,
-          username: 'defaultUsername', // Set a default username or get it from the request
+          username: user_id, // Set a default username or get it from the request
           canvas_api_token: '', // Set a default or empty token
           canvas_courses: [],
           settings: defaultSettings,
