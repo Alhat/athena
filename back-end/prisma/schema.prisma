@@ -18,8 +18,8 @@ type UserDataSettings {
 }
 
 type UserDataUserStats {
-  average_completion_time Int
-  average_grade           Int
+  average_completion_time BigInt
+  average_grade           Float
   total_tasks_completed   Int
 }
 
@@ -79,10 +79,18 @@ model task_data {
   user_id                   String
 }
 
+
+type UserDataCourses {
+  course_id     String
+  course_grade  Float
+  passing_grade Float
+  average_completion_time BigInt
+}
+
 model user_data {
   id               String            @id @map("_id")
   canvas_api_token String
-  canvas_courses   String[]
+  canvas_courses   UserDataCourses[]
   settings         UserDataSettings
   user_stats       UserDataUserStats
   username         String
