@@ -12,7 +12,7 @@ router.get('/tasks', async (req, res) => {
     }
 
     // Query tasks by user_id and sort by priority
-    const tasks = await prisma.task.findMany({
+    const tasks = await prisma.task_data.findMany({
       where: {
         user_id: req.session.user_id,
       },

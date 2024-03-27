@@ -1,0 +1,12 @@
+Fetch tasks for active user: 
+curl -b cookies.txt http://localhost:5000/api/user/tasks
+
+Generate task for active user:
+curl -b cookies.txt -X POST http://localhost:5000/api/task/generate -H "Content-Type: application/json" -d '{"title": "Essay Assignment", "details": "Write a 2000-word essay on the impact of climate change", "dueDate": "2023-05-15"}'
+
+Set active user:
+curl -c cookies.txt -X POST http://localhost:5000/api/session/set-user -H "Content-Type: application/json" -d '{"user_id": "giol"}'
+
+Give prompt to GPT:
+curl -X POST http://localhost:5000/api/gpt -H "Content-Type: application/json" -d '{"prompt": "Tell me a joke"}'
+

@@ -39,6 +39,9 @@ app.use("/api/db", dbRoute);
 const taskRoute = require('./src/routes/taskRoutes');
 app.use('/api/task', taskRoute);
 
+const userRoute = require('./src/routes/userRoutes');
+app.use('/api/user', userRoute);
+
 // Refactor this later!!!!!!!!
 app.post('/api/session/set-user', async (req, res) => {
   const { user_id } = req.body;
