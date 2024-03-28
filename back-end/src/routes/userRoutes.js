@@ -61,6 +61,10 @@ router.post('/set-user', setUser);
  */
 router.post('/update-user', updateUser);
 
+
+/**
+ * curl -X POST http://localhost:3000/api/user/delete-user -H "Content-Type: application/json" -d '{"user_id": "bob_test"}'
+ */
 router.post('/delete-user', deleteUser);
 
 module.exports = router;

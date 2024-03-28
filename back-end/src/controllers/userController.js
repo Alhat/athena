@@ -96,7 +96,7 @@ exports.updateUser = async (req, res) => {
         // If user DNE, cancel update
         if (!existingUserData) {
             res.send({ message: `User, ${user_id}, could not be found` });
-            console.log(`Update of user: ${user_id} was denied, could not find user in database`);
+            console.log(`Update of user: ${user_id} was denied; could not find user in database`);
             return;
         }
 
@@ -119,7 +119,34 @@ exports.updateUser = async (req, res) => {
 }
 
 exports.deleteUser = async (req, res) => {
-    res.send({ message: 'TODO: Delete user' });
+
+    const { user_id } = req.body;
+
+    try {
+
+        const existingUserData = await prisma.user_data.findUnique({
+            where: { id: user_id },
+        });
+
+        // If user DNE, cancel delete
+        if (!existingUserData) {
+            res.send({ message: `User, ${user_id}, could not be found, deletion canceled` });
+            console.log(`Deletion of user: ${user_id} was denied; could not find user in database`);
+            return;
+        }
+
+        await prisma.user_data.delete({
+            where: { id: user_id },
+        });
+
+        res.send({ message: 'User was successfully deleted' });
+        console.log(`User: ${user_id} was deleted from the database`);
+
+        
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).send('Internal Server Error');
+    }
 }
 
 
