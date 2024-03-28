@@ -149,11 +149,6 @@ exports.setUser = async (req, res) => {
             });
             
             res.send({ message: 'User set successfully' });
-
-        // If user data DNE, tell the user to use /update-user!
-        } else {
-            res.send({ message: 'User already found, use /update-user if you would like to update the user' });
-            console.log(`Attempted to create user that already exists: ${user_id}, but was denied`);
         }
 
         

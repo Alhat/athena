@@ -10,12 +10,13 @@ exports.generateTask = async (req, res) => {
     }
 
     // Generate task data
-    const { title, details, dueDate } = req.body;
-    const taskData = await generateTaskData(title, details, dueDate);
+    const { title, details, dueDate, course_id } = req.body;
+    const taskData = await generateTaskData(title, details, dueDate, course_id);
 
     // Add user_id and other default values to the task data
     const newTaskData = {
       title: taskData.title,
+      course_id: taskData.course_id,
       description: taskData.description,
       due_date: dueDate,
       estimated_completion_time: taskData.estimated_completion_time,
