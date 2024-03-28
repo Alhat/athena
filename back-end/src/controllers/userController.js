@@ -73,6 +73,56 @@ exports.setUser = async (req, res) => {
     }
 }
 
+exports.updateUser = async (req, res) => {
+
+    const { user_id, username, canvas_courses, settings, user_stats, canvas_api_token } = req.body;
+
+    try {
+        if (!user_id) {
+            res.send({ message: 'Please include the user_id of the user you would like to update in the JSON' });
+            console.log("No user_id provided, update canceled");
+            return;
+        }
+        if (!username && !canvas_courses && !settings && !user_stats && !canvas_api_token) {
+            res.send({ message: 'You must update one of the following fields: username, canvas_courses, settings, user_stats, canvas_api_token' });
+            console.log("Attempt to update zero or non-existent field(s), update canceled");
+            return;
+        }
+
+        const existingUserData = await prisma.user_data.findUnique({
+            where: { id: user_id },
+        });
+
+        // If user DNE, cancel update
+        if (!existingUserData) {
+            res.send({ message: `User, ${user_id}, could not be found` });
+            console.log(`Update of user: ${user_id} was denied, could not find user in database`);
+            return;
+        }
+
+        await prisma.user_data.update({
+            where: { id: user_id },
+            data: {
+                // updates the user_data document to the new value if it exists OR the old value 
+                username: username || existingUserData.username,
+                canvas_api_token: canvas_api_token || existingUserData.canvas_api_token,
+                canvas_courses: canvas_courses || existingUserData.canvas_courses,
+                settings: settings || existingUserData.settings,
+                user_stats: user_stats || existingUserData.user_stats,
+            },
+        });
+        res.send({ message: 'User updated successfully' });
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).send('Internal Server Error');
+    }
+}
+
+exports.deleteUser = async (req, res) => {
+    res.send({ message: 'TODO: Delete user' });
+}
+
+
 
 exports.getTasks = async (req, res) => {
     try {

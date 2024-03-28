@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
-const { setUser, getTasks } = require('../controllers/userController');
+const { setUser, getTasks, updateUser, deleteUser } = require('../controllers/userController');
 const prisma = new PrismaClient();
 
 // Fetch all tasks for the set user
@@ -52,5 +52,15 @@ router.get('/tasks', getTasks);
  *    '{"user_id": "josh_test2", "username": "josh_test@aol.com", "canvas_courses": [{"course_id": "math101", "course_grade": 94.5, "passing_grade": 70.0, "average_completion_time": 1500}], "settings": {"notifications": false, "theme": "dark"}, "user_stats": {"average_completion_time": 2000, "average_grade": 90.1, "total_tasks_completed": 25}, "canvas_api_token": "NA"}'
  */
 router.post('/set-user', setUser);
+
+/**
+ * EXAMPLE USE: It must include a user_id and at least one field, otherwise will not proceed with the update
+ * 
+ * curl -X POST http://localhost:3000/api/user/update-user -H "Content-Type: application/json" -d '{"user_id": "bob_test", "username": "newBobUser123"}'
+ * 
+ */
+router.post('/update-user', updateUser);
+
+router.post('/delete-user', deleteUser);
 
 module.exports = router;
