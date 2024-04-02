@@ -1,3 +1,8 @@
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+const axios = require("axios");
+
+
 /**
  * 
  * The move is given a certain task, calculate the priority based on the task and the course.
@@ -8,7 +13,6 @@
  */
 
 
-const axios = require("axios");
 
 
 /**
@@ -18,7 +22,14 @@ const axios = require("axios");
  * @param {*} course input the canvas course structure, including the fields:
  *  average_completion_time, course_grade, course_id, passing_grade
  */
-async function calculatePriority(task, course) {
+async function calculatePriority(task) {
+
+
+    course = getCourse(task);
+    if (!course) {
+        console.error('Error getting course in priority.js -> calculatePriority()');
+        return;
+    }
 
     // Set the coefficients to determine the weight that each will have on the priority score
     const grade_coeff = 6;
@@ -46,3 +57,33 @@ async function manuallyUpdatePriority(task, number) {
     task.priority = number;
     return task;
 }
+
+async function getCourse(task) {
+
+
+    try {
+        const userData = await prisma.user_data.findUnique({
+            where: { id: task.user_id },
+        });
+
+        let canvas_course;
+        for (let course of userData.canvas_courses) {
+            if (course.course_id == task.course_id) {
+                canvas_course = course;
+                break;
+            }
+        }
+
+        if (canvas_course) {
+            return canvas_course;
+        }
+
+    } catch (error) {
+        console.error('Error trying to find user in priority.js', error);
+        res.status(500).send('Internal Server Error');
+    }
+
+}
+
+
+module.exports = { calculatePriority, manuallyUpdatePriority };
