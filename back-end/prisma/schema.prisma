@@ -85,6 +85,7 @@ model task_data {
   sub_tasks                 TaskDataSubTasks[]
   title                     String
   user_id                   String
+  weight                    Float
 }
 
 model user_data {

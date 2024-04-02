@@ -21,7 +21,7 @@ async function takePrompt(prompt) {
   }
 }
 
-async function generateTaskData(title, details, dueDate, course_id) {
+async function generateTaskData(title, details, dueDate, course_id, weight) {
   const prompt = `Generate a JSON response with a breakdown of tasks into easy-to-manage subtasks and an estimated completion time for the assignment titled "${title}" with details "${details}" and due date "${dueDate}". The estimated_completion_time is in hours. The JSON should have the following format: { "title": "", "sub_tasks": [ { "description": "" } ], "estimated_completion_time": 0, "due_date": "${dueDate}" }`;
   const gptResponse = await takePrompt(prompt);
 
@@ -32,6 +32,7 @@ async function generateTaskData(title, details, dueDate, course_id) {
     taskData.finish_date = null;
     taskData.description = details;
     taskData.course_id = course_id;
+    taskData.weight = weight;
 
     // Ensure each sub_task has a status of "to-do"
     if (Array.isArray(taskData.sub_tasks)) {

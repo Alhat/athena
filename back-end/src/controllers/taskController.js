@@ -11,7 +11,7 @@ exports.generateTask = async (req, res) => {
 
     // Generate task data
     const { title, details, dueDate, course_id } = req.body;
-    const taskData = await generateTaskData(title, details, dueDate, course_id);
+    const taskData = await generateTaskData(title, details, dueDate, course_id, weight);
 
     // Add user_id and other default values to the task data
     const newTaskData = {
@@ -25,6 +25,7 @@ exports.generateTask = async (req, res) => {
       sub_tasks: taskData.sub_tasks,
       user_id: req.session.user_id,
       created_at: new Date().toISOString(),
+      weight: taskData.weight || 0,
     };
 
     // Save the task to the database
