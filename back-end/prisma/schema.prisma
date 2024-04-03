@@ -78,9 +78,9 @@ model task_data {
   course_id                 String
   created_at                String
   description               String
-  due_date                  String
+  due_date                  BigInt
   estimated_completion_time Int
-  priority                  Int
+  priority                  Float
   status                    String
   sub_tasks                 TaskDataSubTasks[]
   title                     String

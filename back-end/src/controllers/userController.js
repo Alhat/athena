@@ -148,7 +148,10 @@ exports.setUser = async (req, res) => {
                 },
             });
             
-            res.send({ message: 'User set successfully' });
+            res.send({ message: 'User added and set successfully' });
+
+        } else {
+            res.send({ message: 'User found and set successfully' });
         }
 
         
