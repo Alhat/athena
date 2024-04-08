@@ -1,3 +1,6 @@
+*** IMPORTANT: MAKE SURE YOUR HOST IS CORRECT ***
+
+
 Fetch tasks for active user: 
 curl -b cookies.txt http://localhost:5000/api/user/tasks
 
@@ -11,6 +14,9 @@ curl -c cookies.txt -X POST http://localhost:5000/api/user/set-user -H "Content-
 Give prompt to GPT:
 curl -X POST http://localhost:5000/api/gpt -H "Content-Type: application/json" -d '{"prompt": "Tell me a joke"}'
 
+Update Priorities (First is how to update one user, second is to update all):
+curl -b cookies.txt -X POST http://localhost:5000/api/task/update-priorities -H "Content-Type: application/json" -d '{"user_id": "giol"}'
+curl -b cookies.txt -X POST http://localhost:5000/api/task/update-priorities
 
 
 To create a new user with all empty or default values

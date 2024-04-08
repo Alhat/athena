@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { generateTaskData } = require('../services/gpt');
-const {calculatePriority, manuallyUpdatePriority} = require('../services/priority');
+const {calculatePriority, manuallyUpdatePriority, updateAllPriorities} = require('../services/priority');
 
 exports.generateTask = async (req, res) => {
   try {
@@ -42,6 +42,22 @@ exports.generateTask = async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 };
+
+
+exports.updatePriorities = async (req, res) => {
+
+  const { user_id } = req.body;
+  if (user_id) {
+
+    await updateAllPriorities(user_id);
+
+  } else {
+    
+    await updateAllPriorities("");
+  }
+
+  res.send({ message: 'Priorities have been updated' });
+}
 
 
 // exports.calculatePriority = async (req, res) => {

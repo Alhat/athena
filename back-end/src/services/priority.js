@@ -37,7 +37,7 @@ async function calculatePriority(task) {
     const due_date_coeff = 10.0;
 
     // Gets the day
-    const due_date = task.due_date / 86400000;
+    const due_date = parseInt(task.due_date) / parseInt(86400000);
 
     // Set the different terms in priority equation
     const avg_time = avg_time_coeff * parseFloat(course.average_completion_time);
@@ -46,7 +46,7 @@ async function calculatePriority(task) {
     const inv_due_date = 1.0 / (due_date_coeff * parseFloat(due_date));
 
     // The higher the priority number, the higher the priority
-    const priority = avg_time * assignment_weight * inv_course_grade * inv_due_date;
+    const priority = avg_time + assignment_weight + inv_course_grade + inv_due_date;
     // console.log("THE PRIORITY CALCULATED WAS: ", priority);
     return priority;
 
@@ -115,5 +115,54 @@ async function getCourse(task) {
 
 }
 
+/**
+ * 
+ * @param {*} user specify a specific user to update priorities. If blank, update all of them.
+ */
+async function updateAllPriorities(user_id) {
 
-module.exports = { calculatePriority, manuallyUpdatePriority };
+    try {
+        
+        let tasks;
+        if (user_id) { // if a user_id is given only update the priorities for that user.
+        
+            tasks = await prisma.task_data.findMany({
+                where: {
+                  user_id: user_id
+                }
+            });
+              
+    
+        } else {
+    
+            tasks = await prisma.task_data.findMany();
+        }
+
+        console.log(`Updating ${tasks.length} tasks`);
+
+        let newPriority;
+        process.stdout.write("[");
+        for (let task of tasks) {
+            newPriority = await calculatePriority(task);
+            await prisma.task_data.update({
+                where: { id: task.id },
+                data: {
+                    priority: newPriority || task.priority,
+                },
+            });
+            process.stdout.write("*");
+        }
+        process.stdout.write("]\n");
+        // console.log(tasks);
+        return;
+        
+
+    } catch (error) {
+        console.error('Error fetching tasks in priority.js -> updateAllPriorities(): ', error);
+        res.status(500).send('Internal Server Error');
+    }
+    
+}
+
+
+module.exports = { calculatePriority, manuallyUpdatePriority, updateAllPriorities };
