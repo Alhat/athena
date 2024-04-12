@@ -31,23 +31,13 @@ type UserDataUserStats {
 }
 
 model assignment_data {
-  id                String @id @default(auto()) @map("_id") @db.ObjectId
-  assignment_grade  Float
-  assignment_weight Float
-  completion_date   BigInt
-  course            String
-  creation_date     BigInt
-  current_grade     Float
-  description       String
-  due_date          BigInt
-  gpt_plan          String
-  link              String
-  passing_grade     Float
-  progress          BigInt
-  start_date        BigInt
-  subject           String
-  title             String
-  user              String
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  course_id   String
+  description String
+  due_date    BigInt
+  title       String
+  user        String
+  weight      Int
 }
 
 model personal_data {

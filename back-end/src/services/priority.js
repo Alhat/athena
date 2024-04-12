@@ -31,22 +31,30 @@ async function calculatePriority(task) {
     }
 
     // Set the coefficients to determine the weight that each will have on the priority score
-    const grade_coeff = 6.0;
-    const assignment_weight_coeff = 8.0;
-    const avg_time_coeff = 3.0;
-    const due_date_coeff = 10.0;
+    // const grade_coeff = 6.0;
+    // const assignment_weight_coeff = 8.0;
+    // const avg_time_coeff = 3.0;
+    // const due_date_coeff = 10.0;
+
+
 
     // Gets the day
-    const due_date = parseInt(task.due_date) / parseInt(86400000);
+    const due_date = parseFloat(task.due_date) / parseFloat(86400000);
+    let todays_date = new Date().getTime();
+    todays_date = todays_date / parseFloat(86400000);
+    const time_left = due_date - todays_date;
 
     // Set the different terms in priority equation
-    const avg_time = avg_time_coeff * parseFloat(course.average_completion_time);
-    const assignment_weight = assignment_weight_coeff * parseFloat(task.weight);
-    const inv_course_grade = 1.0 / (grade_coeff * parseFloat(course.course_grade));
-    const inv_due_date = 1.0 / (due_date_coeff * parseFloat(due_date));
+    // const avg_time = avg_time_coeff * parseFloat(course.average_completion_time);
+    // const assignment_weight = assignment_weight_coeff * parseFloat(task.weight);
+    // const inv_course_grade = 1.0 / (grade_coeff * parseFloat(course.course_grade));
+    // const inv_due_date = 1.0 / (due_date_coeff * parseFloat(due_date));
+    const assignment_weight = parseFloat(task.weight)
+    const grade_difference = (parseFloat(course.course_grade) - parseFloat(course.passing_grade)) / 10
 
     // The higher the priority number, the higher the priority
-    const priority = avg_time + assignment_weight + inv_course_grade + inv_due_date;
+    const priority = assignment_weight / (grade_difference * time_left)
+    // const priority = avg_time + assignment_weight + inv_course_grade + inv_due_date;
     // console.log("THE PRIORITY CALCULATED WAS: ", priority);
     return priority;
 
