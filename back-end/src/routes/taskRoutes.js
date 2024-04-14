@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { generateTask, updatePriorities } = require('../controllers/taskController');
+const { generateTask, updatePriorities, updateTaskStatus } = require('../controllers/taskController');
 
 router.post('/generate', generateTask);
 router.post('/update-priorities', updatePriorities);
+router.post('/update-status', updateTaskStatus);
 
 module.exports = router;

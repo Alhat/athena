@@ -1,63 +1,103 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const { generateTaskData } = require('../services/gpt');
-const {calculatePriority, manuallyUpdatePriority, updateAllPriorities} = require('../services/priority');
+const { generateTaskData } = require("../services/gpt");
+const {
+    calculatePriority,
+    manuallyUpdatePriority,
+    updateAllPriorities,
+} = require("../services/priority");
 
 exports.generateTask = async (req, res) => {
-  try {
-    // Check if user_id is set in the session
-    if (!req.session.user_id) {
-      return res.status(401).send({ message: 'User not set in session' });
+    try {
+        // Check if user_id is set in the session
+        if (!req.session.user_id) {
+            return res.status(401).send({ message: "User not set in session" });
+        }
+
+        // Generate task data
+        const { title, details, dueDate, course_id, weight } = req.body;
+        const taskData = await generateTaskData(
+            title,
+            details,
+            dueDate,
+            course_id,
+            weight
+        );
+
+        // Add user_id and other default values to the task data
+        const newTaskData = {
+            title: taskData.title,
+            course_id: taskData.course_id,
+            description: taskData.description,
+            due_date: dueDate,
+            estimated_completion_time: taskData.estimated_completion_time,
+            priority: 0, // Set a default priority updated after this
+            status: "to-do",
+            sub_tasks: taskData.sub_tasks,
+            user_id: req.session.user_id,
+            created_at: new Date().toISOString(),
+            weight: taskData.weight || 0,
+        };
+
+        newTaskData.priority = await calculatePriority(newTaskData);
+
+        // Save the task to the database
+        const newTask = await prisma.task_data.create({
+            data: newTaskData,
+        });
+        // res.json(newTask);
+        res.send({ message: "Task has been generated" });
+    } catch (error) {
+        console.error("Error generating task:", error);
+        res.status(500).send("Internal Server Error");
     }
-
-    // Generate task data
-    const { title, details, dueDate, course_id, weight } = req.body;
-    const taskData = await generateTaskData(title, details, dueDate, course_id, weight);
-
-    // Add user_id and other default values to the task data
-    const newTaskData = {
-      title: taskData.title,
-      course_id: taskData.course_id,
-      description: taskData.description,
-      due_date: dueDate,
-      estimated_completion_time: taskData.estimated_completion_time,
-      priority: 0, // Set a default priority updated after this
-      status: 'to-do',
-      sub_tasks: taskData.sub_tasks,
-      user_id: req.session.user_id,
-      created_at: new Date().toISOString(),
-      weight: taskData.weight || 0,
-    };
-
-    newTaskData.priority = await calculatePriority(newTaskData);
-
-    // Save the task to the database
-    const newTask = await prisma.task_data.create({
-      data: newTaskData,
-    });
-    // res.json(newTask);
-    res.send({ message: 'Task has been generated' });
-  } catch (error) {
-    console.error('Error generating task:', error);
-    res.status(500).send('Internal Server Error');
-  }
 };
 
-
 exports.updatePriorities = async (req, res) => {
+    const { user_id } = req.body;
+    if (user_id) {
+        await updateAllPriorities(user_id);
+    } else {
+        await updateAllPriorities("");
+    }
 
-  const { user_id } = req.body;
-  if (user_id) {
+    res.send({ message: "Priorities have been updated" });
+};
 
-    await updateAllPriorities(user_id);
+exports.updateTaskStatus = async (req, res) => {
+    try {
+        if (!req.session.user_id) {
+            return res.status(401).send({ message: "User not set in session" });
+        }
 
-  } else {
-    
-    await updateAllPriorities("");
-  }
+        const {task_id, new_status} = req.body;  // Assuming each task has a unique task_id
+        if (!task_id || !new_status) {
+            return res.status(400).send({ message: "Missing task_id or new_status" });
+        }
 
-  res.send({ message: 'Priorities have been updated' });
-}
+        // Ensure new_status is valid
+        const validStatuses = ['to-do', 'completed', 'in-progress'];
+        if (!validStatuses.includes(new_status)) {
+            return res.status(400).send({ message: "Invalid status provided" });
+        }
+
+        const task = await prisma.task_data.update({
+            where: {
+                id: task_id,  // Using task_id assuming it's unique
+                user_id: req.session.user_id  // Ensuring that the task belongs to the user
+            },
+            data: {
+                status: new_status
+            }
+        });
+
+        res.send({ message: "Task status updated successfully"});
+    }
+    catch (error) {
+        console.error("Error updating task status:", error);
+        res.status(500).send("Internal Server Error");
+    }
+};
 
 
 // exports.calculatePriority = async (req, res) => {
