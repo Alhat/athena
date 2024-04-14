@@ -165,6 +165,11 @@ Current Plan:
                 - other
             - app settings (dark mode, notifications, and other shit)
             - user_stats (stuff used to calculate priority) (is this necessary or does courses have everything needed)
+    - Importing Assignments:
+        - Make routes for fetching all assignments for a user (done-ish)
+        - Make route that takes in assignment_ids and generates tasks
+        - Make route that generates tasks from all assignments (auto import all)
+        - After tasks are generated, the front end needs to make another request to fetch all todo tasks again
     - Aavar
         - Look into OAuth stuff and how it interacts with our current OAuth stuff, register the app with Canvas and get developer keys
         - testing

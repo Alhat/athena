@@ -5,7 +5,7 @@ import json
 from pymongo import MongoClient
 from dotenv import dotenv_values
 
-url = "http://localhost:3000/api/gpt"
+url = "http://localhost:5000/api/gpt"
 headers = {"Content-Type": "application/json"}
 users = ["josh_py"]
 config = dotenv_values("../../.env")
@@ -55,6 +55,7 @@ def main():
 
             for i in range(len(json_response_split)):
                 due_date = (datetime.now() + timedelta(days=randrange(7, 22))).strftime('%Y-%m-%d')
+                due_date = stringDateToEPOCMillis(due_date)
                 e = json.loads(json_response_split[i])
                 e["due_date"] = due_date
                 json_assignments.append(e)
@@ -88,7 +89,14 @@ def add_to_db(json_assigmnets):
     except Exception as e:
         print("Failed to add assignment to DB: ", e)
 
-
+def stringDateToEPOCMillis(date_str):
+    # Convert the string date to a datetime object
+    date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+    
+    # Convert the datetime object to a Unix timestamp in milliseconds
+    epoch_millis = int(date_obj.timestamp() * 1000)
+    
+    return epoch_millis
 
 if __name__ == '__main__':
     main()
