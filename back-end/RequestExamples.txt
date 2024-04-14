@@ -4,6 +4,12 @@
 Fetch tasks for active user: 
 curl -b cookies.txt http://localhost:5000/api/user/tasks
 
+Update task status:
+curl -b cookies.txt -X POST http://localhost:5000/api/task/update-status -H "Content-Type: application/json" -d '{"task_id": "661c321023c1939279874d15", "new_status": "completed"}'
+
+Generate tasks from all assignments:
+curl -b cookies.txt http://localhost:5000/api/db/import/all-assignments
+
 Generate task for active user:
 curl -b cookies.txt -X POST http://localhost:5000/api/task/generate -H "Content-Type: application/json" -d '{"title": "Essay Assignment", "details": "Write a 2000-word essay on the impact of climate change", "dueDate": "2023-05-15", "course_id": "climate101", "weight": 10}'
 curl -b cookies.txt -X POST http://localhost:3000/api/task/generate -H "Content-Type: application/json" -d '{"title": "Final take home quiz", "details": "Write a 2000-word essay on the impact of climate change", "dueDate": 1712786963000, "course_id": "climate101", "weight": 10}'
