@@ -265,6 +265,7 @@ exports.deleteUser = async (req, res) => {
 exports.getTasks = async (req, res) => {
     try {
         // Check if user_id is set in the session
+        console.log('Trying to fetch tasks from: ' + req.session.user_id);
         if (!req.session.user_id) {
             return res.status(401).send({ message: "User not set in session" });
         }

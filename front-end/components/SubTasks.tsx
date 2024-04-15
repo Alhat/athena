@@ -11,11 +11,16 @@ import {
     Button,
 } from "@chakra-ui/react";
 
+type TaskDataSubTasks = {
+    description: string;
+    status: string;
+};
+
 interface SubtasksProps {
     isOpen: boolean;
     onClose: () => void;
     taskContent: string;
-    subTasks: string[];
+    subTasks: TaskDataSubTasks[];
 }
 
 const Subtasks: React.FC<SubtasksProps> = ({
@@ -34,7 +39,8 @@ const Subtasks: React.FC<SubtasksProps> = ({
                     {/* Here you would render the subtasks or other details */}
                     {/* You can also pass down subtasks as props if needed */}
                     {subTasks.map((element, index) => (
-                        <p key={index}>Display sub task: {element}</p> // Assuming `element` has a `description` property
+                        //<p key={index}>Display sub task: {element}</p> // Assuming `element` has a `description` property
+                            <p key={index}>{index + 1}) {element.description}</p>
                     ))}
                 </ModalBody>
                 <ModalFooter>

@@ -1,180 +1,195 @@
 // components/KanbanBoard.tsx
 
 import initialData from "../data/data.json"; // Path to your data.json file
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { Flex, Heading, Text } from "@chakra-ui/react";
 import { title } from "process";
+import axios from "axios"; // Import axios for making HTTP requests
+import { randomInt } from "crypto";
 
 const Column = dynamic(() => import("../components/Column"), { ssr: false });
-const AltColumn = dynamic(() => import("../components/AltColumn"), { ssr: false });
+const AltColumn = dynamic(() => import("../components/AltColumn"), {
+    ssr: false,
+});
 
-interface Task {
-    id: number;
-    title: string;
+type TaskDataSubTasks = {
     description: string;
-    subTasks: string[];
-    taskID: string;
-    courseID: string;
-    estimatedCompletionTime: number;
-}
-
-interface Column {
-    id: string;
-    title: string;
-    taskIds: number[];
-}
-
-interface InitialData {
-    tasks: { [key: number]: Task };
-    columns: { [key: string]: Column };
-    columnOrder: string[];
-}
-
-const reorderColumnList = (
-    sourceCol: Column,
-    startIndex: number,
-    endIndex: number
-): Column => {
-    const newTaskIds = Array.from(sourceCol.taskIds);
-    const [removed] = newTaskIds.splice(startIndex, 1);
-    newTaskIds.splice(endIndex, 0, removed);
-
-    return { ...sourceCol, taskIds: newTaskIds };
+    status: string;
 };
 
+interface Task {
+    id: number; // Numeric ID for frontend use
+    title: string;
+    description: string;
+    subTasks: TaskDataSubTasks[]; // Assuming subTasks are an array of strings
+    taskID: string; // MongoDB ObjectId
+    courseID: string; // Equivalent to course_id in the backend
+    estimatedCompletionTime: number;
+    status: string;
+}
+
+// interface Column {
+//     id: string;
+//     title: string;
+//     taskIds: number[];
+// }
+
+// interface InitialData {
+//     tasks: { [key: number]: Task };
+//     columns: { [key: string]: Column };
+//     columnOrder: string[];
+// }
+
+type ColumnKey = "toDo" | "inProgress" | "completed";
+
+interface Columns {
+    toDo: Task[];
+    inProgress: Task[];
+    completed: Task[];
+}
+
+const initialColumns: Columns = {
+    toDo: [],
+    inProgress: [],
+    completed: [],
+};
+
+// const reorderColumnList = (
+//     sourceCol: Column,
+//     startIndex: number,
+//     endIndex: number
+// ): Column => {
+//     const newTaskIds = Array.from(sourceCol.taskIds);
+//     const [removed] = newTaskIds.splice(startIndex, 1);
+//     newTaskIds.splice(endIndex, 0, removed);
+
+//     return { ...sourceCol, taskIds: newTaskIds };
+// };
+
 const KanbanBoard: React.FC = () => {
-    const [state, setState] = useState<InitialData>(initialData);
+    const [columns, setColumns] = useState<Columns>(initialColumns);
 
-    // Quick fix this later
-    const onDragEnd = (result: { destination: any; source: any; }) => {
-        const { destination, source } = result;
+    const fetchTasks = async () => {
+        try {
+            const response = await axios.get(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/tasks`,
+                { withCredentials: true } 
+            );
+            const fetchedTasks = response.data;
 
-        // If user tries to drop in an unknown destination
-        if (!destination) return;
-
-        // if the user drags and drops back in the same position
-        if (
-            destination.droppableId === source.droppableId &&
-            destination.index === source.index
-        ) {
-            return;
-        }
-
-        // If the user drops within the same column but in a different positoin
-        const sourceCol = state.columns[source.droppableId];
-        const destinationCol = state.columns[destination.droppableId];
-
-        if (sourceCol.id === destinationCol.id) {
-            const newColumn = reorderColumnList(
-                sourceCol,
-                source.index,
-                destination.index
+            // Convert and map tasks to fit the frontend interface
+            const tasks: Task[] = fetchedTasks.map(
+                (task: any, index: number) => ({
+                    id: index + 1, // Create a numeric ID based on the index if needed
+                    title: task.title,
+                    description: task.description,
+                    subTasks: task.sub_tasks, // Assuming sub_tasks is correct and it's an array of strings
+                    taskID: task.id, // Assuming the backend uses _id for MongoDB ObjectId
+                    courseID: task.course_id,
+                    estimatedCompletionTime: task.estimated_completion_time,
+                    status: task.status,
+                })
             );
 
-            const newState = {
-                ...state,
-                columns: {
-                    ...state.columns,
-                    [newColumn.id]: newColumn,
-                },
+            // Sorting tasks into columns based on their status
+            const newColumns: Columns = {
+                toDo: tasks.filter((task) => task.status === "to-do"),
+                inProgress: tasks.filter(
+                    (task) => task.status === "in-progress"
+                ),
+                completed: tasks.filter((task) => task.status === "completed"),
             };
-            setState(newState);
+
+            setColumns(newColumns);
+        } catch (error) {
+            console.error("Failed to fetch tasks:", error);
+        }
+    };
+
+    useEffect(() => {
+        // When the page first loads, I want to fetch all of the tasks for this user
+        // Then sort them into lists based on status
+        // Use states for those lists
+        // I think the column should just be hard coded
+        // Like there is only 3, there will only ever be 3, it will not change
+        fetchTasks();
+    }, []);
+
+    // Quick fix this later
+    const onDragEnd = (result: DropResult) => {
+        const { destination, source } = result;
+        if (!destination || (destination.droppableId === source.droppableId && destination.index === source.index)) {
             return;
         }
-
-        // If the user moves from one column to another
-        const startTaskIds = Array.from(sourceCol.taskIds);
-        const [removed] = startTaskIds.splice(source.index, 1);
-        const newStartCol = {
-            ...sourceCol,
-            taskIds: startTaskIds,
-        };
-
-        const endTaskIds = Array.from(destinationCol.taskIds);
-        endTaskIds.splice(destination.index, 0, removed);
-        const newEndCol = {
-            ...destinationCol,
-            taskIds: endTaskIds,
-        };
-
-        const newState = {
-            ...state,
-            columns: {
-                ...state.columns,
-                [newStartCol.id]: newStartCol,
-                [newEndCol.id]: newEndCol,
-            },
-        };
-
-        setState(newState);
+    
+        const sourceCol = columns[source.droppableId as ColumnKey];
+        const destinationCol = columns[destination.droppableId as ColumnKey];
+        const [removed] = sourceCol.splice(source.index, 1);
+        destinationCol.splice(destination.index, 0, removed);
+    
+        setColumns({
+            ...columns,
+            [source.droppableId]: [...sourceCol],
+            [destination.droppableId]: [...destinationCol],
+        });
     };
 
     // Add a new function to handle task deletion
-    const deleteTask = (taskId: number) => {
-        // Remove the task from the tasks object
-        const newTasks = { ...state.tasks };
-        delete newTasks[taskId];
-
-        // Remove the task from all columns
-        const newColumns = { ...state.columns };
-        Object.keys(newColumns).forEach((columnId) => {
-            newColumns[columnId].taskIds = newColumns[columnId].taskIds.filter(
-                (id) => id !== taskId
-            );
-        });
-
-        // Update the state
-        setState({
-            ...state,
-            tasks: newTasks,
-            columns: newColumns,
-        });
-    };
-
-    const updateTask = (taskId: number, newContent: string) => {
-        const updatedTasks = {
-            ...state.tasks,
-            [taskId]: { ...state.tasks[taskId], content: newContent },
-        };
-        setState({ ...state, tasks: updatedTasks });
-    };
-    const createTask = () => {
-        console.log("createTask called"); // Debugging log
-        const newTaskId = Math.max(...Object.keys(state.tasks).map(Number)) + 1; // Generate a new ID
-        const newTask = {
-            id: newTaskId,
-            title: "New Task", // Default content for new tasks
-            description: "A new description",
-            subTasks: ["A sub task"],
-            taskID: "asdfbaetrbatba",
-            courseID: "Fuck You 101",
-            estimatedCompletionTime: 69
-        };
-
-        const newTasks = {
-            ...state.tasks,
-            [newTaskId]: newTask,
-        };
-
-        // Assuming 'backlog' is the ID of your Backlog column
-        const newBacklogColumn = {
-            ...state.columns["column-1"],
-            taskIds: [...state.columns["column-1"].taskIds, newTaskId],
-        };
-
+    const deleteTask = (id: number) => {
+        // Create a new copy of columns with the task removed
         const newColumns = {
-            ...state.columns,
-            ["column-1"]: newBacklogColumn,
+            toDo: columns.toDo.filter((task) => task.id !== id),
+            inProgress: columns.inProgress.filter((task) => task.id !== id),
+            completed: columns.completed.filter((task) => task.id !== id),
         };
 
-        setState({
-            ...state,
-            tasks: newTasks,
-            columns: newColumns,
+        // Update the columns state
+        setColumns(newColumns);
+    };
+
+    const updateTask = (taskId: string, newContent: string) => {
+        const newColumns: Columns = { ...columns };
+
+        // Go through each column
+        Object.keys(newColumns).forEach((columnKey) => {
+            // Assert that columnKey is a valid key of Columns
+            const key = columnKey as ColumnKey;
+
+            // Map through the tasks in each column to find and update the specified task
+            newColumns[key] = newColumns[key].map((task) => {
+                if (task.taskID === taskId) {
+                    // Return a new task object with updated content
+                    return { ...task, description: newContent };
+                }
+                return task;
+            });
+        });
+
+        // Set the updated columns back to state
+        setColumns(newColumns);
+    };
+
+    const createTask = () => {
+        console.log("createTask called");
+        const newTask: Task = {
+            id: randomInt(100, 2000), // Ensuring unique ID generation
+            taskID: crypto.randomUUID(), // Use a proper UUID
+            title: "New Task",
+            description: "A new description",
+            subTasks: [{description: "A sub task", status: "to-do"}],
+            courseID: "Course 101",
+            estimatedCompletionTime: 69,
+            status: "to-do",
+        };
+    
+        setColumns({
+            ...columns,
+            toDo: [...columns.toDo, newTask],
         });
     };
+
     return (
         <DragDropContext onDragEnd={onDragEnd}>
             <Flex
@@ -188,31 +203,30 @@ const KanbanBoard: React.FC = () => {
                 <Flex py="2rem" flexDir="column" align="center"></Flex>
 
                 <Flex justify="space-between" px="4rem">
-                    {state.columnOrder.map((columnId) => {
-                        const column = state.columns[columnId];
-                        const tasks = column.taskIds.map(
-                            (taskId) => state.tasks[taskId]
-                        );
-                        console.log(
-                            `Column: ${columnId}, onCreateTask:`,
-                            columnId === "column-1" ? createTask : undefined
-                        );
+                    <AltColumn
+                        key="toDo"
+                        column={{ id: "toDo", title: "To Do" }}
+                        tasks={columns.toDo}
+                        deleteTask={deleteTask}
+                        updateTask={updateTask}
+                        onCreateTask={createTask} // Assuming createTask is relevant for "To Do"
+                    />
 
-                        return (
-                            <AltColumn
-                                key={column.id}
-                                column={column}
-                                tasks={tasks}
-                                deleteTask={deleteTask} // Pass deleteTask to Column
-                                updateTask={updateTask} // Here you pass updateTask to the Column
-                                onCreateTask={
-                                    columnId === "column-1"
-                                        ? createTask
-                                        : undefined
-                                } // Only pass createTask to the Backlog column
-                            />
-                        );
-                    })}
+                    <AltColumn
+                        key="inProgress"
+                        column={{ id: "inProgress", title: "In Progress" }}
+                        tasks={columns.inProgress}
+                        deleteTask={deleteTask}
+                        updateTask={updateTask}
+                    />
+
+                    <AltColumn
+                        key="completed"
+                        column={{ id: "completed", title: "Completed" }}
+                        tasks={columns.completed}
+                        deleteTask={deleteTask}
+                        updateTask={updateTask}
+                    />
                 </Flex>
             </Flex>
         </DragDropContext>

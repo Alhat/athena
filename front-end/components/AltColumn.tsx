@@ -4,15 +4,21 @@ import { Draggable, Droppable } from "react-beautiful-dnd";
 import Task from "./Task"; // Import the Task component
 import { AddIcon } from "@chakra-ui/icons";
 
+type TaskDataSubTasks = {
+    description: string;
+    status: string;
+};
+
 // Interfaces
 interface Task {
-    id: number;
+    id: number;                  // Numeric ID for frontend use
     title: string;
     description: string;
-    subTasks: string[];
-    taskID: string;
-    courseID: string;
+    subTasks: TaskDataSubTasks[];          // Assuming subTasks are an array of strings
+    taskID: string;              // MongoDB ObjectId
+    courseID: string;            // Equivalent to course_id in the backend
     estimatedCompletionTime: number;
+    status: string;
 }
 
 interface ColumnProps {
@@ -22,7 +28,7 @@ interface ColumnProps {
     };
     tasks: Task[];
     deleteTask: (taskId: number) => void; // Add deleteTask to the props
-    updateTask: (taskId: number, newContent: string) => void; // Add this prop
+    updateTask: (taskId: string, newContent: string) => void; // Add this prop
     onCreateTask?: () => void; // Optional because not all columns may have this button
 }
 
@@ -47,7 +53,7 @@ const AltColumn: React.FC<ColumnProps> = ({
                 <Text fontSize="17px" fontWeight={600} color="subtle-text">
                     {column.title}
                 </Text>
-                {column.title === "BACKLOG" && (
+                {column.title === "toDO" && (
                     <IconButton
                         aria-label="Create task"
                         icon={<AddIcon />}

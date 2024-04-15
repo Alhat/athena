@@ -14,19 +14,25 @@ import Subtasks from "./SubTasks";
 import EditTaskModal from "./EditTaskModal";
 import internal from "stream";
 
+type TaskDataSubTasks = {
+    description: string;
+    status: string;
+};
+
 interface TaskProps {
     task: {
-        id: number;
+        id: number; // Changed from number to string
         title: string;
         description: string;
-        subTasks: string[];
-        taskID: string;
+        subTasks: TaskDataSubTasks[]; // Make sure this matches the structure of TaskDataSubTasks if needed
+        taskID: string; // Is this meant to be the same as `id`?
         courseID: string;
-        estimatedCompletionTime: number;
+        estimatedCompletionTime: number; // Match backend field name if different
+        status: string;
     };
     provided: DraggableProvided;
     deleteTask: (taskId: number) => void; // Add deleteTask to the props
-    updateTask: (taskId: number, newContent: string) => void; // Function to call when edit is saved
+    updateTask: (taskId: string, newContent: string) => void; // Function to call when edit is saved
 }
 
 const Task: React.FC<TaskProps> = ({
@@ -116,7 +122,7 @@ const Task: React.FC<TaskProps> = ({
                 isOpen={isEditOpen}
                 onClose={onEditClose}
                 taskContent={task.description}
-                onSave={(newContent) => updateTask(task.id, newContent)}
+                onSave={(newContent) => updateTask(task.taskID, newContent)}
             />
         </Flex>
     );
