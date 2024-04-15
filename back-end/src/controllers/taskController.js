@@ -100,6 +100,38 @@ exports.updateTaskStatus = async (req, res) => {
 };
 
 
+exports.deleteTask = async (req, res) => {
+    const { id } = req.body;
+
+    try {
+        const existingTask = await prisma.task_data.findUnique({
+            where: { id: id },
+        });
+
+        // If user DNE, cancel delete
+        if (!existingTask) {
+            res.send({
+                message: `Task, ${id}, could not be found, deletion canceled`,
+            });
+            console.log(
+                `Deletion of task: ${id} was denied; could not find task in database`
+            );
+            return;
+        }
+
+        await prisma.task_data.delete({
+            where: { id: id },
+        });
+
+        res.send({ message: "Task was successfully deleted" });
+        console.log(`Task: ${id} was deleted from the database`);
+    } catch (error) {
+        console.error("Error deleting task:", error);
+        res.status(500).send("Internal Server Error");
+    }
+};
+
+
 // exports.calculatePriority = async (req, res) => {
 
 //   try {
