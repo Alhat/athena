@@ -12,6 +12,8 @@ import {
     Stack,
     Checkbox,
     CheckboxGroup,
+    FormLabel,
+    Text,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { Console } from "console";
@@ -45,9 +47,13 @@ const AssignmentSelectMenu: React.FC<asmProps> = ({
     const [selectedAssignmentIDs, setSelectedAssignmentIDs] = useState<
         string[]
     >([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [showError, setShowError] = useState(false);
+
     const btnRef = React.useRef(null);
 
     const handleCheckboxChange = (checkedValues: string[]) => {
+        console.log(checkedValues);
         setSelectedAssignmentIDs(checkedValues);
     };
 
@@ -66,6 +72,36 @@ const AssignmentSelectMenu: React.FC<asmProps> = ({
             setAssignments(response.data);
         } catch (error) {
             console.error("Error: " + error);
+        }
+    };
+
+    const generateTasksFromSelected = async () => {
+        try {
+            if (selectedAssignmentIDs.length < 1) {
+                setShowError(true);
+                throw new Error("No selected assignments");
+            }
+            setShowError(false);
+
+            setIsLoading(true);
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/db/import/selected-assignments`,
+                {
+                    assignmentList: selectedAssignmentIDs,
+                },
+                { withCredentials: true }
+            );
+
+            if (response.data) {
+                setIsLoading(false);
+                fetchTasks();
+                onClose();
+            } else {
+                setIsLoading(false);
+            }
+        } catch (error) {
+            console.error("Error: " + error);
+            setIsLoading(false); // Ensure loading is turned off in case of an error
         }
     };
 
@@ -102,8 +138,20 @@ const AssignmentSelectMenu: React.FC<asmProps> = ({
                                 ))}
                             </Stack>
                         </CheckboxGroup>
+                        {showError && (
+                            <Text fontSize="lg" color="red">
+                                Must select at least 1 assignment.
+                            </Text>
+                        )}
                     </ModalBody>
                     <ModalFooter color="white">
+                        <Button
+                            colorScheme={isLoading ? "gray" : "blue"}
+                            onClick={generateTasksFromSelected}
+                            isDisabled={isLoading}
+                        >
+                            {isLoading ? "Loading..." : "Save"}
+                        </Button>
                         <Button onClick={onClose}>Close</Button>
                     </ModalFooter>
                 </ModalContent>

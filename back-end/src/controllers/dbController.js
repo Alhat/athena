@@ -66,7 +66,7 @@ async function generateTasksFromSelectedAssignments(req, res) {
         const assignments = await prisma.assignment_data.findMany({
             where: {
                 user: req.session.user_id,
-                title: { in: assignmentList },
+                id: { in: assignmentList },
             },
         });
 
@@ -110,7 +110,6 @@ async function generateTasksFromSelectedAssignments(req, res) {
             })
         );
 
-        console.log("Tasks: \n\n\n\n\n" + tasks + "\n\n\n\n\n\n");
         // Save the tasks to the database
         const createdTasks = await prisma.task_data.createMany({
             data: tasks,
