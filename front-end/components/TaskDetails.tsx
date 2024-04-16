@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -19,6 +19,7 @@ import {
   HStack,
   useColorModeValue
 } from '@chakra-ui/react';
+import axios from "axios"; // Import axios for making HTTP requests
 
 // Assuming you have these types defined somewhere in your project
 type SubTask = {
@@ -53,16 +54,46 @@ interface TaskDetailsProps {
 
 const TaskDetails: React.FC<TaskDetailsProps> = ({ isOpen, onClose, task }) => {
   // Calculate the progress based on completed subtasks
-  const calculateProgress = () => {
-    const completedSubtasks = task.subTasks.filter(subtask => subtask.status === 'completed').length;
-    return (completedSubtasks / task.subTasks.length) * 100;
+  const [subTasks, setSubTasks] = useState<TaskDataSubTasks[]>(task.subTasks);
+
+// Update calculateProgress to use local subTasks state
+const calculateProgress = () => {
+    const completedSubtasks = subTasks.filter(subtask => subtask.status === 'completed').length;
+    return (completedSubtasks / subTasks.length) * 100;
   };
 
   // Handle status toggle
-  const handleStatusToggle = (subtaskId: string) => {
-    // Update the status of the subtask
-    // Note: This is where you'd also update the backend or state
+  const handleStatusToggle = async (subtaskId: string) => {
+    // Update the status locally for immediate feedback
+    const updatedSubTasks = subTasks.map(subtask => {
+      if (subtask.description === subtaskId) {
+        return { ...subtask, status: subtask.status === 'completed' ? 'incomplete' : 'completed' };
+      }
+      return subtask;
+    });
+    setSubTasks(updatedSubTasks);
+  
+    // Send the updated status to the backend
+    try {
+        const payload = {
+          subtaskId,
+          newStatus: updatedSubTasks.find(subtask => subtask.description === subtaskId)?.status,
+        };
+      
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/task/update-subtask-status`,
+          payload,
+          { withCredentials: true }
+        );
+      
+        // Handle your response as necessary
+        console.log(response.data);
+      } catch (error) {
+        console.error('Failed to update subtask status:', error);
+        // Optionally handle the state revert here if the update fails
+      }
   };
+  
   const inactiveTabBg = useColorModeValue('gray.600', 'gray.700'); // Adjust as needed for light/dark modes
   const inactiveTabColor = useColorModeValue('gray.400', 'gray.500'); // Adjust for readability
   const activeTabColor = 'white'; // Adjust as needed for your theme
@@ -102,7 +133,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ isOpen, onClose, task }) => {
                   {task.subTasks.map((subtask) => (
                     <HStack key={subtask.status} justify="space-between">
                       <Text color="white-text">{subtask.description}</Text>
-                      <Switch isChecked={subtask.status === 'completed'} onChange={() => handleStatusToggle(subtask.status)} />
+                      <Switch isChecked={subtask.status === 'completed'} onChange={() => handleStatusToggle(subtask.description)} />
                     </HStack>
                   ))}
                 </VStack>

@@ -131,7 +131,9 @@ exports.deleteTask = async (req, res) => {
     }
 };
 
-
+exports.updateSubtaskStatus = async (req, res) => {
+        
+}
 // exports.calculatePriority = async (req, res) => {
 
 //   try {
