@@ -113,6 +113,27 @@ const KanbanBoard: React.FC = () => {
             return;
         }
 
+        const task = columns[source.droppableId as ColumnKey][source.index];
+        let newStatus;
+        switch (destination.droppableId) {
+            case "toDo":
+                newStatus = "to-do";
+                break;
+            
+            case "inProgress":
+                newStatus = "in-progress";
+                break;
+
+            case "completed":
+                newStatus = "completed";
+                break;
+        
+            default:
+                break;
+        }
+
+        if (newStatus && task.taskID) updateTaskStatus(newStatus, task.taskID);
+
         const sourceCol = columns[source.droppableId as ColumnKey];
         const destinationCol = columns[destination.droppableId as ColumnKey];
         const [removed] = sourceCol.splice(source.index, 1);
@@ -123,6 +144,20 @@ const KanbanBoard: React.FC = () => {
             [source.droppableId]: [...sourceCol],
             [destination.droppableId]: [...destinationCol],
         });
+    };
+
+    const updateTaskStatus = async (newStatus: string, taskId: string) => {
+        try {
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/task/update-status`,
+                {task_id: taskId, new_status: newStatus},
+                { withCredentials: true }
+            );
+            console.log("Task status updated:", response.data);
+        } catch (error) {
+            console.error("Failed to update task status:", error);
+        }
+
     };
 
     

@@ -36,7 +36,7 @@ exports.generateTask = async (req, res) => {
             course_id: taskData.course_id,
             description: taskData.description,
             due_date: stringDateToEpochMillis(dueDate),
-            estimated_completion_time: taskData.estimated_completion_time,
+            estimated_completion_time: taskData.estimated_completion_time || 0,
             running_time: 0,
             completion_time: 0,
             priority: 0, // Set a default priority updated after this
