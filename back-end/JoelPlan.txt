@@ -1,0 +1,180 @@
+------------------------
+How should the app work:
+------------------------
+    - A user starts the app.
+        - A user signs in with google
+        - If new user:
+            - generate default user_data
+            - take NotCanvas username and password
+            - Set up settings for this new user (adjustable in menu later)
+        - Track user_id (the NotCanvas username) in express-session (stored in MongoDB (not sure how this works or why it is so))
+        - Set theme according to settings (Light, Dark, ...)
+        - If auto-import setting on:
+            - Find new assignments on NotCanvas and create tasks from them
+                - Make sure they aren't tasks the user has already gotten rid of
+                - Setting for time range on auto-import
+                    - (Example) Only import assignments due within a month
+        - Fetch tasks for this user and show them
+            - Get's all tasks from this user ordered by priority
+            - Have separate routes to get tasks by status as well (still ordered)????
+
+    - A user uses the app
+        - Tasks can be moved between columns
+            - Up to frontend people
+            - Route for updating status of task in backend
+                - request:
+                    - task_id
+                    - new_status
+        - An in-progress task can have sub-tasks checked off
+            - Up to frontend people
+            - Route for updating status of sub-task in the backend
+                - sub-tasks are ordered, use this
+                - request:
+                    - task_id
+                    - new_status
+                    - sub_task_index
+        - Done Tasks:
+            - In column mode:
+                - Show the done tasks within Time-frame setting 
+                    - (Example) Time-frame is 7 days. Show only tasks done within the past 7 days.
+            - In calendar mode:
+                - Show tasks on the days they were done
+        - Adjust Settings:
+            - up to frontend people
+            - Route for updating settings
+                - request:
+                    - setting_to_update
+                    - new_setting_value
+        - User can import assignment NOT from NotCanvas
+            - Frontend stuff
+            - Route for making new task
+                - request:
+                    - title
+                    - details
+                    - dueDate (fix this later)
+            - Update frontend
+        - User can manually import assignment(s) from NotCanvas
+            - Frontend stuff (communicate with NotCanvas)
+            - Route for making new task(s) given assignment ID(s)
+                - request:
+                    - assignment_ids (list)
+            - Update frontend
+        - User can auto-import assignments from NotCanvas
+            - Works the same as stated in app start-up
+
+--------------------------
+GPT Notes on current plan:
+--------------------------
+    Your updated app plan is comprehensive and covers a wide range of features for a task management application. 
+    Here are some thoughts and suggestions:
+
+    1. **User Authentication:**
+    - Using Google for authentication is a common and secure approach. Make sure to handle the authentication 
+    flow properly and securely store any tokens or sensitive information.
+
+    2. **User Data Generation:**
+    - Generating default `user_data` for new users is a good practice. This ensures that every user has a 
+    consistent data structure to start with.
+
+    3. **Session Management:**
+    - Tracking the user ID in `express-session` stored in MongoDB is a standard approach for session management
+     in Node.js applications. This allows you to maintain user state across requests. The reason for storing 
+     sessions in MongoDB (or any database) is to persist session data across server restarts and to scale session management across multiple server instances.
+
+    4. **Theme and Auto-Import Settings:**
+    - Allowing users to set a theme and auto-import preferences enhances the user experience. For the 
+    auto-import feature, make sure to implement efficient and reliable communication with the NotCanvas system.
+
+    5. **Task Management:**
+    - Your plan for task management, including moving tasks between columns, updating sub-task status, 
+    and viewing done tasks in different modes, is well thought out. Make sure to design your API routes 
+    and database schema to support these operations efficiently.
+
+    6. **Settings Adjustment:**
+    - Providing a route for updating settings is essential for a customizable user experience. Make 
+    sure to validate the new setting values and update the user's data accordingly.
+
+    7. **Manual and Auto-Import from NotCanvas:**
+    - For importing assignments from NotCanvas, ensure that your system can handle authentication 
+    and communication with the NotCanvas API securely. Consider edge cases and error handling for 
+    the import process.
+
+    8. **Frontend-Backend Communication:**
+    - Your plan mentions "up to frontend people" for several features. Make sure to establish clear 
+    communication and API contracts between the frontend and backend teams to ensure smooth integration 
+    and consistent data handling.
+
+    Overall, your app plan is detailed and covers important aspects of a task management application. 
+    As you implement these features, keep scalability, security, and user experience in mind. 
+    Regularly test your application to ensure that all features work as expected and that any issues are promptly addressed.
+
+----------------------------------
+What are the settings for the app:
+----------------------------------
+    - Fuck if I know (TODO)
+
+--------------------------------
+Why using Canvas API is a BITCH:
+--------------------------------
+    - For a specific institution:
+        - Performing the OAuth2 token request flow requires an application client ID and client secret. 
+        - To obtain these application credentials, you will need to register your application. 
+        - The client secret should never be shared.
+        - For Canvas Cloud (hosted by Instructure), developer keys are issued by the admin of the institution.
+        - NOTE for LTI providers: Since developer keys are scoped to the institution they are issued from, 
+          tool providers that serve multiple institutions should store and look up the correct developer key 
+          based on the launch parameters (eg. custom_canvas_api_domain) sent during the LTI launch.
+
+    - For open source Canvas users, you can generate a client ID and secret in the Site Admin account of your Canvas install.
+
+    - PROFESSOR SAID we should NOT do institution specific as it is a pain in the ass
+    - HE ALSO SAID we should STRONGLY consider setting up a separate simple backend with 
+      dummy data for some example third-party platform
+
+-------------
+Current Plan:
+-------------
+    - Make a route for generating a single task (Done)
+        - No need to mess with database stuff rn, I want to clarify that shit  with the team
+        - Take in assignment title and details (including due date)
+        - Pass to GPT and get task data
+        - Return that data
+    - Made route for setting user-id. Uploads task to MongoDB with user-id. (Done)
+        - I feel like there is some security concerns here.
+            -Security Concerns for Setting User ID:
+                It's good that you're aware of potential security concerns. 
+                Ensure that only authenticated users can set their user ID and access their tasks. 
+                Consider implementing authentication and authorization mechanisms, such as using 
+                JSON Web Tokens (JWT) or OAuth, to secure your API endpoints.
+    - Make stuff for saving user_data (partially done, take a look at this)
+        - Make a user_data collection (done)
+        - Make sure user_id is unique (done??)
+            - track a separate user name???? (GPT said so, but IDK)
+                -Tracking Separate User Name:
+                    Tracking a separate user name can be useful for display purposes or for user management. 
+                    It depends on your application's requirements. If you decide to include it, make sure to handle it 
+                    appropriately in your authentication and user management flows.
+        - When a user is set, make sure they have a user_data document (done)
+        - Make route for fetching all of a user's tasks (done)
+            - Use indexes with MongoDB (not done!!!!!!!!!!!)  <---------------------------------- Look at me
+        - Things user_data should keep track of:
+            - courses (Course object or sub-document)  <------------------------------------------ Loot at me!!!
+                - course ID
+                - not have grade?? It changes too much, so just fetch it from Canvas API when needed
+                - average assignment completion time
+                - other
+            - app settings (dark mode, notifications, and other shit)
+            - user_stats (stuff used to calculate priority) (is this necessary or does courses have everything needed)
+    - Importing Assignments:
+        - Make routes for fetching all assignments for a user (done-ish)
+        - Make route that takes in assignment_ids and generates tasks
+        - Make route that generates tasks from all assignments (auto import all)
+        - After tasks are generated, the front end needs to make another request to fetch all todo tasks again
+    - Aavar
+        - Look into OAuth stuff and how it interacts with our current OAuth stuff, register the app with Canvas and get developer keys
+        - testing
+    - Josh & Kinjal?
+        - Generate user_stats for a user
+        - Write algorithm for how user_stats are used to generate priority value
+        - Write how user_stats change overtime
+
