@@ -3,6 +3,7 @@ import { Flex, IconButton, Text } from "@chakra-ui/react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import Task from "./Task"; // Import the Task component
 import { AddIcon } from "@chakra-ui/icons";
+import ImportButton from "./ImportButton";
 
 type TaskDataSubTasks = {
     description: string;
@@ -53,17 +54,8 @@ const AltColumn: React.FC<ColumnProps> = ({
                 <Text fontSize="17px" fontWeight={600} color="subtle-text">
                     {column.title}
                 </Text>
-                {column.title === "toDO" && (
-                    <IconButton
-                        aria-label="Create task"
-                        icon={<AddIcon />}
-                        size="sm"
-                        colorScheme="green"
-                        onClick={() => {
-                            console.log("Create button clicked", onCreateTask);
-                            onCreateTask && onCreateTask();
-                        }}
-                    />
+                {column.id === "toDo" && (
+                    <ImportButton></ImportButton>
                 )}
             </Flex>
 
