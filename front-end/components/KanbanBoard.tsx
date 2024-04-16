@@ -8,6 +8,7 @@ import { Flex, Heading, Text } from "@chakra-ui/react";
 import { title } from "process";
 import axios from "axios"; // Import axios for making HTTP requests
 import { randomInt } from "crypto";
+import { error } from "console";
 
 const Column = dynamic(() => import("../components/Column"), { ssr: false });
 const AltColumn = dynamic(() => import("../components/AltColumn"), {
@@ -30,18 +31,6 @@ interface Task {
     status: string;
 }
 
-// interface Column {
-//     id: string;
-//     title: string;
-//     taskIds: number[];
-// }
-
-// interface InitialData {
-//     tasks: { [key: number]: Task };
-//     columns: { [key: string]: Column };
-//     columnOrder: string[];
-// }
-
 type ColumnKey = "toDo" | "inProgress" | "completed";
 
 interface Columns {
@@ -56,18 +45,6 @@ const initialColumns: Columns = {
     completed: [],
 };
 
-// const reorderColumnList = (
-//     sourceCol: Column,
-//     startIndex: number,
-//     endIndex: number
-// ): Column => {
-//     const newTaskIds = Array.from(sourceCol.taskIds);
-//     const [removed] = newTaskIds.splice(startIndex, 1);
-//     newTaskIds.splice(endIndex, 0, removed);
-
-//     return { ...sourceCol, taskIds: newTaskIds };
-// };
-
 const KanbanBoard: React.FC = () => {
     const [columns, setColumns] = useState<Columns>(initialColumns);
 
@@ -75,7 +52,7 @@ const KanbanBoard: React.FC = () => {
         try {
             const response = await axios.get(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/tasks`,
-                { withCredentials: true } 
+                { withCredentials: true }
             );
             const fetchedTasks = response.data;
 
@@ -120,15 +97,19 @@ const KanbanBoard: React.FC = () => {
     // Quick fix this later
     const onDragEnd = (result: DropResult) => {
         const { destination, source } = result;
-        if (!destination || (destination.droppableId === source.droppableId && destination.index === source.index)) {
+        if (
+            !destination ||
+            (destination.droppableId === source.droppableId &&
+                destination.index === source.index)
+        ) {
             return;
         }
-    
+
         const sourceCol = columns[source.droppableId as ColumnKey];
         const destinationCol = columns[destination.droppableId as ColumnKey];
         const [removed] = sourceCol.splice(source.index, 1);
         destinationCol.splice(destination.index, 0, removed);
-    
+
         setColumns({
             ...columns,
             [source.droppableId]: [...sourceCol],
@@ -178,12 +159,12 @@ const KanbanBoard: React.FC = () => {
             taskID: crypto.randomUUID(), // Use a proper UUID
             title: "New Task",
             description: "A new description",
-            subTasks: [{description: "A sub task", status: "to-do"}],
+            subTasks: [{ description: "A sub task", status: "to-do" }],
             courseID: "Course 101",
             estimatedCompletionTime: 69,
             status: "to-do",
         };
-    
+
         setColumns({
             ...columns,
             toDo: [...columns.toDo, newTask],
@@ -210,6 +191,7 @@ const KanbanBoard: React.FC = () => {
                         deleteTask={deleteTask}
                         updateTask={updateTask}
                         onCreateTask={createTask} // Assuming createTask is relevant for "To Do"
+                        fetchTasks={fetchTasks}
                     />
 
                     <AltColumn
@@ -218,6 +200,7 @@ const KanbanBoard: React.FC = () => {
                         tasks={columns.inProgress}
                         deleteTask={deleteTask}
                         updateTask={updateTask}
+                        fetchTasks={() => {}}
                     />
 
                     <AltColumn
@@ -226,6 +209,7 @@ const KanbanBoard: React.FC = () => {
                         tasks={columns.completed}
                         deleteTask={deleteTask}
                         updateTask={updateTask}
+                        fetchTasks={() => {}}
                     />
                 </Flex>
             </Flex>

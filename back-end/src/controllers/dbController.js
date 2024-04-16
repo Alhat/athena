@@ -184,16 +184,21 @@ async function generateTasksFromAllAssignments(req, res) {
             const createdTasks = await prisma.task_data.createMany({
                 data: tasks,
             });
-            res.json(createdTasks);
+            res.json({
+                createdTasks: createdTasks,
+                message: 1,
+            });
         } else {
             res.status(200).send({
                 message:
-                    "No new tasks to generate, all assignments are already processed.",
+                    2,
             });
         }
     } catch (error) {
         console.error("Error generating tasks from all assignments:", error);
-        res.status(500).send("Internal Server Error");
+        res.status(500).send({
+            message: -1
+        });
     }
 }
 

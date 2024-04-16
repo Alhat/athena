@@ -31,6 +31,7 @@ interface ColumnProps {
     deleteTask: (taskId: number) => void; // Add deleteTask to the props
     updateTask: (taskId: string, newContent: string) => void; // Add this prop
     onCreateTask?: () => void; // Optional because not all columns may have this button
+    fetchTasks: () => void;
 }
 
 const AltColumn: React.FC<ColumnProps> = ({
@@ -39,6 +40,7 @@ const AltColumn: React.FC<ColumnProps> = ({
     deleteTask,
     updateTask,
     onCreateTask,
+    fetchTasks
 }) => {
     return (
         <Flex rounded="3px" bg="column-bg" w="400px" h="620px" flexDir="column">
@@ -55,7 +57,7 @@ const AltColumn: React.FC<ColumnProps> = ({
                     {column.title}
                 </Text>
                 {column.id === "toDo" && (
-                    <ImportButton></ImportButton>
+                    <ImportButton fetchTasks={fetchTasks} ></ImportButton>
                 )}
             </Flex>
 
