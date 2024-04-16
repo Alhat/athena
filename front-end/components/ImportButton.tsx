@@ -2,6 +2,7 @@ import { ChevronDownIcon } from "@chakra-ui/icons";
 import { Menu, MenuButton, MenuList, MenuItem, Button } from "@chakra-ui/react";
 import axios from "axios";
 import ManualTaskMenu from "./ManualTaskMenu";
+import AssignmentSelectMenu from "./AssignmentSelectMenu";
 import { useState } from "react";
 
 interface ImportButtonProps {
@@ -14,6 +15,12 @@ const ImportButton: React.FC<ImportButtonProps> = ({ fetchTasks }) => {
 
     const onClose = () => {
         setIsManualTaskMenuOpen(false);
+    };
+
+    const [isAsmMenuOpen, setIsAsmMenuOpen] = useState<boolean>(false);
+
+    const onAsmClose = () => {
+        setIsAsmMenuOpen(false);
     };
 
     const importAllAssignments = async () => {
@@ -60,6 +67,9 @@ const ImportButton: React.FC<ImportButtonProps> = ({ fetchTasks }) => {
                         _focus={{ bg: "green.500", color: "white" }} // Repeat for each MenuItem
                         bg="#276749"
                         color="white"
+                        onClick={() => {
+                            setIsAsmMenuOpen(true);
+                        }}
                     >
                         Import Selected
                     </MenuItem>
@@ -80,6 +90,11 @@ const ImportButton: React.FC<ImportButtonProps> = ({ fetchTasks }) => {
                 onClose={onClose}
                 fetchTasks={fetchTasks}
             />
+            <AssignmentSelectMenu
+                isOpen={isAsmMenuOpen}
+                onClose={onAsmClose}
+                fetchTasks={fetchTasks}
+            ></AssignmentSelectMenu>
         </>
     );
 };

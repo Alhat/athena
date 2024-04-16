@@ -35,7 +35,7 @@ async function getAssignments(req, res) {
                 )
         );
 
-        // Convert BigInt to string and send response
+        // Convert BigInt (due date) to string and send response
         const response = JSON.stringify(filteredAssignments, (key, value) =>
             typeof value === "bigint" ? value.toString() : value
         );
