@@ -7,7 +7,7 @@ from dotenv import dotenv_values
 
 url = "http://localhost:5000/api/gpt"
 headers = {"Content-Type": "application/json"}
-users = ["josh_py"]
+users = ["giol"]
 config = dotenv_values("../../.env")
 
 def main():
