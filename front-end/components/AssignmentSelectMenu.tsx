@@ -94,14 +94,17 @@ const AssignmentSelectMenu: React.FC<asmProps> = ({
 
             if (response.data) {
                 setIsLoading(false);
+                setSelectedAssignmentIDs([]);
                 fetchTasks();
                 onClose();
             } else {
                 setIsLoading(false);
+                setSelectedAssignmentIDs([]);
             }
         } catch (error) {
             console.error("Error: " + error);
             setIsLoading(false); // Ensure loading is turned off in case of an error
+            setSelectedAssignmentIDs([]);
         }
     };
 

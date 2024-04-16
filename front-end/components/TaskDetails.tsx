@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Modal,
     ModalOverlay,
@@ -47,14 +47,22 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ isOpen, onClose, task }) => {
     const [subTasks, setSubTasks] = useState<TaskDataSubTasks[]>(task.subTasks);
 
     const calculateProgress = () => {
-        const completedSubtasks = subTasks.filter(subtask => subtask.status === 'completed').length;
+        const completedSubtasks = subTasks.filter(
+            (subtask) => subtask.status === "completed"
+        ).length;
         return (completedSubtasks / subTasks.length) * 100;
     };
 
     const handleStatusToggle = async (description: string) => {
-        const updatedSubTasks = subTasks.map(subtask => {
+        const updatedSubTasks = subTasks.map((subtask) => {
             if (subtask.description === description) {
-                return { ...subtask, status: subtask.status === 'completed' ? 'incomplete' : 'completed' };
+                return {
+                    ...subtask,
+                    status:
+                        subtask.status === "completed"
+                            ? "incomplete"
+                            : "completed",
+                };
             }
             return subtask;
         });
@@ -62,7 +70,9 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ isOpen, onClose, task }) => {
 
         const payload = {
             description,
-            newStatus: updatedSubTasks.find(subtask => subtask.description === description)?.status,
+            newStatus: updatedSubTasks.find(
+                (subtask) => subtask.description === description
+            )?.status,
             taskId: task.taskID,
         };
 
@@ -84,6 +94,10 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ isOpen, onClose, task }) => {
     const inactiveTabColor = useColorModeValue("gray.400", "gray.500");
     const activeTabColor = "white";
 
+    useEffect(() => {
+        setSubTasks(task.subTasks);
+    }, [task]);
+
     return (
         <Modal isOpen={isOpen} onClose={onClose} size="6xl">
             <ModalOverlay />
@@ -93,26 +107,56 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ isOpen, onClose, task }) => {
                 <ModalBody>
                     <Tabs variant="enclosed">
                         <TabList mb="1em">
-                            <Tab _selected={{ color: activeTabColor, borderColor: 'white' }} _focus={{ boxShadow: 'none' }}
-                                 color={inactiveTabColor} bg={inactiveTabBg}>
+                            <Tab
+                                _selected={{
+                                    color: activeTabColor,
+                                    borderColor: "white",
+                                }}
+                                _focus={{ boxShadow: "none" }}
+                                color={inactiveTabColor}
+                                bg={inactiveTabBg}
+                            >
                                 Description
                             </Tab>
-                            <Tab _selected={{ color: activeTabColor, borderColor: 'white' }} _focus={{ boxShadow: 'none' }}
-                                 color={inactiveTabColor} bg={inactiveTabBg}>
+                            <Tab
+                                _selected={{
+                                    color: activeTabColor,
+                                    borderColor: "white",
+                                }}
+                                _focus={{ boxShadow: "none" }}
+                                color={inactiveTabColor}
+                                bg={inactiveTabBg}
+                            >
                                 Subtasks
                             </Tab>
                         </TabList>
                         <TabPanels>
                             <TabPanel>
-                                <Text color="white-text" fontSize="lg">{task.description}</Text>
+                                <Text color="white-text" fontSize="lg">
+                                    {task.description}
+                                </Text>
                             </TabPanel>
                             <TabPanel>
                                 <VStack align="stretch">
-                                    {task && subTasks.map((subtask, index) => (
-                                        <HStack key={`${subtask.description}-${index}`} justify="space-between">
-                                            <Text color="white-text">{subtask.description}</Text>
-                                            <Switch isChecked={subtask.status === 'completed'}
-                                                    onChange={() => handleStatusToggle(subtask.description)} />
+                                    {subTasks.map((subtask, index) => (
+                                        <HStack
+                                            key={`${subtask.description}-${index}`}
+                                            justify="space-between"
+                                        >
+                                            <Text color="white-text">
+                                                {subtask.description}
+                                            </Text>
+                                            <Switch
+                                                isChecked={
+                                                    subtask.status ===
+                                                    "completed"
+                                                }
+                                                onChange={() =>
+                                                    handleStatusToggle(
+                                                        subtask.description
+                                                    )
+                                                }
+                                            />
                                         </HStack>
                                     ))}
                                 </VStack>
@@ -121,7 +165,12 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ isOpen, onClose, task }) => {
                     </Tabs>
                 </ModalBody>
                 <ModalFooter>
-                    <Progress colorScheme="green" size="lg" value={calculateProgress()} w="full" />
+                    <Progress
+                        colorScheme="green"
+                        size="lg"
+                        value={calculateProgress()}
+                        w="full"
+                    />
                 </ModalFooter>
             </ModalContent>
         </Modal>
