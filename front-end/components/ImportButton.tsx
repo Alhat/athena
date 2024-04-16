@@ -1,5 +1,18 @@
 import { ChevronDownIcon } from "@chakra-ui/icons";
-import { Menu, MenuButton, MenuList, MenuItem, Button } from "@chakra-ui/react";
+import {
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
+    Button,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
+    Text,
+    ModalFooter
+} from "@chakra-ui/react";
 import axios from "axios";
 import ManualTaskMenu from "./ManualTaskMenu";
 import AssignmentSelectMenu from "./AssignmentSelectMenu";
@@ -12,6 +25,7 @@ interface ImportButtonProps {
 const ImportButton: React.FC<ImportButtonProps> = ({ fetchTasks }) => {
     const [isManualTaskMenuOpen, setIsManualTaskMenuOpen] =
         useState<boolean>(false);
+    const [isGeneratingFromAll, setIsGeneratingFromAll] = useState(false);
 
     const onClose = () => {
         setIsManualTaskMenuOpen(false);
@@ -25,17 +39,21 @@ const ImportButton: React.FC<ImportButtonProps> = ({ fetchTasks }) => {
 
     const importAllAssignments = async () => {
         try {
+            setIsGeneratingFromAll(true);
+
             const response = await axios.get(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/db/import/all-assignments`,
                 { withCredentials: true }
             );
 
             if (response.data.message > 0) {
+                setIsGeneratingFromAll(false);
                 fetchTasks();
             } else {
                 throw new Error("Unsuccessful import all assignments");
             }
         } catch (error) {
+            setIsGeneratingFromAll(false);
             console.error("Failed to import all tasks:", error);
         }
     };
@@ -85,16 +103,25 @@ const ImportButton: React.FC<ImportButtonProps> = ({ fetchTasks }) => {
                     </MenuItem>
                 </MenuList>
             </Menu>
+
             <ManualTaskMenu
                 isOpen={isManualTaskMenuOpen}
                 onClose={onClose}
                 fetchTasks={fetchTasks}
             />
+
             <AssignmentSelectMenu
                 isOpen={isAsmMenuOpen}
                 onClose={onAsmClose}
                 fetchTasks={fetchTasks}
             ></AssignmentSelectMenu>
+
+            <Modal isOpen={isGeneratingFromAll} colorScheme="column-bg" onClose={() => {}}>
+                <ModalOverlay />
+                <ModalContent bg="column-bg">
+                    <ModalHeader color="white">Loading tasks...</ModalHeader>
+                </ModalContent>
+            </Modal>
         </>
     );
 };
