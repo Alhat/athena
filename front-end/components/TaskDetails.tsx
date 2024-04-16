@@ -132,9 +132,17 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ isOpen, onClose, task }) => {
                         </TabList>
                         <TabPanels>
                             <TabPanel>
+<<<<<<< Updated upstream
                                 <Text color="white-text" fontSize="lg">
                                     {task.description}
                                 </Text>
+=======
+                                <Text color="white-text" fontSize="lg">Course: {task.courseID}</Text>
+                                <Text color="white-text" fontSize="lg">Task description: {task.description}</Text>
+                                <Text color="white-text" fontSize="lg">Estimated completion time: {task.estimatedCompletionTime}</Text>
+                                <Text color="white-text" fontSize="lg">Current task status: {task.status}</Text>
+                                
+>>>>>>> Stashed changes
                             </TabPanel>
                             <TabPanel>
                                 <VStack align="stretch">
