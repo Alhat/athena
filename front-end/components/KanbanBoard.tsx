@@ -118,16 +118,34 @@ const KanbanBoard: React.FC = () => {
     };
 
     // Add a new function to handle task deletion
-    const deleteTask = (id: number) => {
+    const deleteTask = async (taskId: string) => {
         // Create a new copy of columns with the task removed
         const newColumns = {
-            toDo: columns.toDo.filter((task) => task.id !== id),
-            inProgress: columns.inProgress.filter((task) => task.id !== id),
-            completed: columns.completed.filter((task) => task.id !== id),
+            toDo: columns.toDo.filter((task) => task.taskID != taskId),
+            inProgress: columns.inProgress.filter((task) => task.taskID != taskId),
+            completed: columns.completed.filter((task) => task.taskID != taskId),
         };
-
         // Update the columns state
         setColumns(newColumns);
+
+        try {
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/task/delete-task`,
+                {id: taskId},
+                { withCredentials: true }
+            );
+
+            if (response.data.message === "Task was successfully deleted") {
+                console.log("Succesfully deleted task");
+            } else {
+                console.log("Failed to delete task");
+            }
+
+        } catch (error) {
+            console.error("Delete task failed: ", error);
+        }
+
+        
     };
 
     const updateTask = (taskId: string, newContent: string) => {
