@@ -13,6 +13,7 @@ import { DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 import Subtasks from "./SubTasks";
 import EditTaskModal from "./EditTaskModal";
 import internal from "stream";
+import TaskDetails from "./TaskDetails";
 
 type TaskDataSubTasks = {
     description: string;
@@ -112,11 +113,10 @@ const Task: React.FC<TaskProps> = ({
                     onClick={onSubtasksOpen}
                 />
             </Box>
-            <Subtasks
+            <TaskDetails
                 isOpen={isSubtasksOpen}
                 onClose={onSubtasksClose}
-                taskContent={task.title}  // Need to change the stuff displayed here later
-                subTasks={task.subTasks}
+                task={task}  // Need to change the stuff displayed here later
             />
             <EditTaskModal
                 isOpen={isEditOpen}
