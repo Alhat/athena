@@ -35,6 +35,10 @@ type Task = {
     courseID: string;
     estimatedCompletionTime: number;
     status: string;
+    due_date: number;
+    weight: number;
+    created_at: string;
+    priority: number;
 };
 
 interface TaskDetailsProps {
@@ -93,7 +97,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ isOpen, onClose, task }) => {
     const inactiveTabBg = useColorModeValue("gray.600", "gray.700");
     const inactiveTabColor = useColorModeValue("gray.400", "gray.500");
     const activeTabColor = "white";
-
+    
     useEffect(() => {
         setSubTasks(task.subTasks);
     }, [task]);
@@ -134,8 +138,11 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ isOpen, onClose, task }) => {
                             <TabPanel>
                                 <Text color="white-text" fontSize="lg">Course: {task.courseID}</Text>
                                 <Text color="white-text" fontSize="lg">Task description: {task.description}</Text>
-                                <Text color="white-text" fontSize="lg">Estimated completion time: {task.estimatedCompletionTime}</Text>
-                                <Text color="white-text" fontSize="lg">Current task status: {task.status}</Text>
+                                <Text color="white-text" fontSize="lg">Estimated completion time: {task.estimatedCompletionTime} hours</Text>
+                                <Text color="white-text" fontSize="lg">Task Weight: {task.weight}%</Text>
+                                <Text color="white-text" fontSize="lg">Due Date: {(new Date (task.due_date).toString())}</Text>
+                                <Text color="white-text" fontSize="lg">Creation date: {task.created_at.substring(0, 10)}</Text>
+                                <Text color="white-text" fontSize="lg">Priority: {task.priority}</Text>
                                 
                             </TabPanel>
                             <TabPanel>

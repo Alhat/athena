@@ -30,6 +30,11 @@ interface TaskProps {
         courseID: string;
         estimatedCompletionTime: number; // Match backend field name if different
         status: string;
+        due_date: number;
+        weight: number;
+        created_at: string;
+        priority: number;
+
     };
     provided: DraggableProvided;
     deleteTask: (taskId: string) => void; // Add deleteTask to the props

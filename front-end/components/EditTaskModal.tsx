@@ -38,7 +38,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, onClose, taskCont
         <ModalCloseButton />
         <ModalBody>
           <FormControl>
-            <FormLabel>Task Name</FormLabel>
+            <FormLabel>Task Description</FormLabel>
             <Input value={content} onChange={(e) => setContent(e.target.value)} autoFocus />
           </FormControl>
         </ModalBody>

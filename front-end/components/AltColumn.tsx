@@ -20,6 +20,10 @@ interface Task {
     courseID: string;            // Equivalent to course_id in the backend
     estimatedCompletionTime: number;
     status: string;
+    due_date: number;
+    weight: number;
+    created_at: string;
+    priority: number;
 }
 
 interface ColumnProps {

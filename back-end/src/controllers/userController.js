@@ -276,7 +276,7 @@ exports.getTasks = async (req, res) => {
                 user_id: req.session.user_id,
             },
             orderBy: {
-                priority: "asc", // Use 'desc' for descending order
+                priority: "desc", // Use 'desc' for descending order
             },
         });
 

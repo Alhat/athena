@@ -29,6 +29,10 @@ interface Task {
     courseID: string; // Equivalent to course_id in the backend
     estimatedCompletionTime: number;
     status: string;
+    due_date: number;
+    weight: number;
+    created_at: string;
+    priority: number;
 }
 
 type ColumnKey = "toDo" | "inProgress" | "completed";
@@ -67,16 +71,20 @@ const KanbanBoard: React.FC = () => {
                     courseID: task.course_id,
                     estimatedCompletionTime: task.estimated_completion_time,
                     status: task.status,
+                    due_date: task.due_date,
+                    weight: task.weight,
+                    created_at: task.created_at,
+                    priority: task.priority,
                 })
             );
 
             // Sorting tasks into columns based on their status
             const newColumns: Columns = {
-                toDo: tasks.filter((task) => task.status === "to-do"),
+                toDo: tasks.filter((task) => task.status === "to-do"), // toDO
                 inProgress: tasks.filter(
-                    (task) => task.status === "in-progress"
+                    (task) => task.status === "in-progress" // inProgress
                 ),
-                completed: tasks.filter((task) => task.status === "completed"),
+                completed: tasks.filter((task) => task.status === "completed"), // completed
             };
 
             setColumns(newColumns);
@@ -116,6 +124,8 @@ const KanbanBoard: React.FC = () => {
             [destination.droppableId]: [...destinationCol],
         });
     };
+
+    
 
     // Add a new function to handle task deletion
     const deleteTask = async (taskId: string) => {
@@ -182,6 +192,11 @@ const KanbanBoard: React.FC = () => {
             courseID: "Course 101",
             estimatedCompletionTime: 69,
             status: "to-do",
+            due_date: 0,
+            weight: 0,
+            created_at: "",
+            priority: 0,
+
         };
 
         setColumns({
