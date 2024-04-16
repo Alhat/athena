@@ -56,6 +56,8 @@ app.use("/api/task", taskRoute);
 const userRoute = require("./src/routes/userRoutes");
 app.use("/api/user", userRoute);
 
+
+
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);

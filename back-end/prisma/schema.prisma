@@ -70,6 +70,8 @@ model task_data {
   description               String
   due_date                  BigInt
   estimated_completion_time Int
+  running_time              Int
+  completion_time           Int
   priority                  Float
   status                    String
   sub_tasks                 TaskDataSubTasks[]

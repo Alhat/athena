@@ -1,7 +1,11 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const { generateTaskData } = require('../services/gpt');
-const {calculatePriority, manuallyUpdatePriority, updateAllPriorities} = require('../services/priority');
+const { generateTaskData } = require("../services/gpt");
+const {
+    calculatePriority,
+    manuallyUpdatePriority,
+    updateAllPriorities,
+} = require("../services/priority");
 
 // Get's the assignments for a user
 async function getAssignments(req, res) {
@@ -11,18 +15,29 @@ async function getAssignments(req, res) {
             return res.status(401).send({ message: "User not set in session" });
         }
 
-        // Get all the assignments for this user
-        const assignments = await prisma.assignment_data.findMany({
-            where: {
-                user: req.session.user_id,
-            },
-        });
+        // Get all the assignments and tasks for this user
+        const [assignments, tasks] = await Promise.all([
+            prisma.assignment_data.findMany({
+                where: { user: req.session.user_id },
+            }),
+            prisma.task_data.findMany({
+                where: { user_id: req.session.user_id },
+            }),
+        ]);
 
-        // TODO: Make sure this works for the schema of assignment_data
-        const response = JSON.stringify(
-            assignments,
-            (key, value) =>
-                typeof value === "bigint" ? value.toString() : value // Convert BigInt to string, problem for later
+        // Filter out assignments that have a corresponding task with the same title and course_id
+        const filteredAssignments = assignments.filter(
+            (assignment) =>
+                !tasks.some(
+                    (task) =>
+                        task.title === assignment.title &&
+                        task.course_id === assignment.course_id
+                )
+        );
+
+        // Convert BigInt to string and send response
+        const response = JSON.stringify(filteredAssignments, (key, value) =>
+            typeof value === "bigint" ? value.toString() : value
         );
 
         res.send(response);
@@ -80,6 +95,8 @@ async function generateTasksFromSelectedAssignments(req, res) {
                     due_date: dueDate,
                     estimated_completion_time:
                         taskData.estimated_completion_time,
+                    running_time: 0,
+                    completion_time: 0,
                     priority: 0, // Set a default priority updated after this
                     status: "to-do",
                     sub_tasks: taskData.sub_tasks,
@@ -93,7 +110,7 @@ async function generateTasksFromSelectedAssignments(req, res) {
             })
         );
 
-        console.log('Tasks: \n\n\n\n\n' + tasks + '\n\n\n\n\n\n');
+        console.log("Tasks: \n\n\n\n\n" + tasks + "\n\n\n\n\n\n");
         // Save the tasks to the database
         const createdTasks = await prisma.task_data.createMany({
             data: tasks,
@@ -117,61 +134,74 @@ async function generateTasksFromAllAssignments(req, res) {
             return res.status(401).send({ message: "User not set in session" });
         }
 
-        // Get all the assignments for this user
-        const assignments = await prisma.assignment_data.findMany({
-            where: {
-                user: req.session.user_id,
-            },
-        });
+        // Fetch all assignments and existing tasks for this user
+        const [assignments, existingTasks] = await Promise.all([
+            prisma.assignment_data.findMany({
+                where: { user: req.session.user_id },
+            }),
+            prisma.task_data.findMany({
+                where: { user_id: req.session.user_id },
+            }),
+        ]);
 
+        // Filter assignments to exclude those that already have a matching task
+        const assignmentsToProcess = assignments.filter(
+            (assignment) =>
+                !existingTasks.some(
+                    (task) =>
+                        task.title === assignment.title &&
+                        task.course_id === assignment.course_id
+                )
+        );
+
+        // Generate tasks from the remaining assignments
         const tasks = await Promise.all(
-            assignments.map(async (assignment) => {
-                // Make sure this matches up with new schema
-                const title = assignment.title;
-                const details = assignment.description;
-                const dueDate = assignment.due_date;
-                const course_id = assignment.course_id;
-                const weight = assignment.weight;
-
+            assignmentsToProcess.map(async (assignment) => {
                 const taskData = await generateTaskData(
-                    title,
-                    details,
-                    dueDate,
-                    course_id,
-                    weight
+                    assignment.title,
+                    assignment.description,
+                    assignment.due_date,
+                    assignment.course_id,
+                    assignment.weight
                 );
 
-                // Add user_id and other default values to the task data
-                const newTaskData = {
-                    title: taskData.title,
-                    course_id: taskData.course_id,
-                    description: taskData.description,
-                    due_date: dueDate,
-                    estimated_completion_time:
-                        taskData.estimated_completion_time,
-                    priority: 0, // Set a default priority updated after this
-                    status: "to-do",
-                    sub_tasks: taskData.sub_tasks,
+                return {
+                    ...taskData,
+                    due_date: assignment.due_date,
                     user_id: req.session.user_id,
+                    running_time: 0,
+                    completion_time: 0,
                     created_at: new Date().toISOString(),
+                    priority: 0, // Default priority, to be updated
+                    status: "to-do",
                     weight: taskData.weight || 0,
                 };
-
-                newTaskData.priority = await calculatePriority(newTaskData);
-                return newTaskData;
             })
         );
 
-        // Save the tasks to the database
-        const createdTasks = await prisma.task_data.createMany({
-            data: tasks,
-        });
+        // Calculate priorities and finalize tasks
+        for (let task of tasks) {
+            task.priority = await calculatePriority(task);
+        }
 
-        // Return the created tasks
-        res.json(createdTasks);
+        if (tasks.length > 0) {
+            const createdTasks = await prisma.task_data.createMany({
+                data: tasks,
+            });
+            res.json({
+                createdTasks: createdTasks,
+                message: 1,
+            });
+        } else {
+            res.status(200).send({
+                message: 2,
+            });
+        }
     } catch (error) {
         console.error("Error generating tasks from all assignments:", error);
-        res.status(500).send("Internal Server Error");
+        res.status(500).send({
+            message: -1,
+        });
     }
 }
 

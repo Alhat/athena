@@ -25,6 +25,9 @@ curl -b cookies.txt -X POST http://localhost:5000/api/task/update-priorities -H 
 curl -b cookies.txt -X POST http://localhost:5000/api/task/update-priorities
 
 
+How to delete task: (the id is the object id of the task document in Mongo)
+curl -X POST http://localhost:5000/api/task/delete-task -H "Content-Type: application/json" -d '{"id": "661d723231974f226d6da4fd"}'
+
 To create a new user with all empty or default values
 curl -X POST http://localhost:3000/api/user/set-user -H "Content-Type: application/json" -d '{"user_id": "your_user_id"}'
 
@@ -44,9 +47,10 @@ To create a new user with custom values
 
 
 How to update user
-curl -X POST http://localhost:3000/api/user/update-user -H "Content-Type: application/json" -d '{"user_id": "bob_test", "username": "newBobUser123"}'
+curl -X POST http://localhost:5000/api/user/update-user -H "Content-Type: application/json" -d '{"user_id": "bob_test", "username": "newBobUser123"}'
 
 
 
 How to delete user
-curl -X POST http://localhost:3000/api/user/delete-user -H "Content-Type: application/json" -d '{"user_id": "bob_test"}'
+curl -X POST http://localhost:5000/api/user/delete-user -H "Content-Type: application/json" -d '{"user_id": "bob_test"}'
+
