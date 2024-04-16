@@ -7,6 +7,12 @@ const {
     updateAllPriorities,
 } = require("../services/priority");
 
+const stringDateToEpochMillis = (dateString) => {
+    // string is in form 202X-MM-DD
+    const epochMillis = Date.parse(dateString);
+    return epochMillis;
+}
+
 exports.generateTask = async (req, res) => {
     try {
         // Check if user_id is set in the session
@@ -29,8 +35,10 @@ exports.generateTask = async (req, res) => {
             title: taskData.title,
             course_id: taskData.course_id,
             description: taskData.description,
-            due_date: dueDate,
+            due_date: stringDateToEpochMillis(dueDate),
             estimated_completion_time: taskData.estimated_completion_time,
+            running_time: 0,
+            completion_time: 0,
             priority: 0, // Set a default priority updated after this
             status: "to-do",
             sub_tasks: taskData.sub_tasks,

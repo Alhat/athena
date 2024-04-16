@@ -95,6 +95,8 @@ async function generateTasksFromSelectedAssignments(req, res) {
                     due_date: dueDate,
                     estimated_completion_time:
                         taskData.estimated_completion_time,
+                    running_time: 0,
+                    completion_time: 0,
                     priority: 0, // Set a default priority updated after this
                     status: "to-do",
                     sub_tasks: taskData.sub_tasks,
@@ -167,6 +169,8 @@ async function generateTasksFromAllAssignments(req, res) {
                     ...taskData,
                     due_date: assignment.due_date,
                     user_id: req.session.user_id,
+                    running_time: 0,
+                    completion_time: 0,
                     created_at: new Date().toISOString(),
                     priority: 0, // Default priority, to be updated
                     status: "to-do",
@@ -190,14 +194,13 @@ async function generateTasksFromAllAssignments(req, res) {
             });
         } else {
             res.status(200).send({
-                message:
-                    2,
+                message: 2,
             });
         }
     } catch (error) {
         console.error("Error generating tasks from all assignments:", error);
         res.status(500).send({
-            message: -1
+            message: -1,
         });
     }
 }

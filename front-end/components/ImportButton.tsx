@@ -75,7 +75,11 @@ const ImportButton: React.FC<ImportButtonProps> = ({ fetchTasks }) => {
                     </MenuItem>
                 </MenuList>
             </Menu>
-            <ManualTaskMenu isOpen={isManualTaskMenuOpen} onClose={onClose} />
+            <ManualTaskMenu
+                isOpen={isManualTaskMenuOpen}
+                onClose={onClose}
+                fetchTasks={fetchTasks}
+            />
         </>
     );
 };
