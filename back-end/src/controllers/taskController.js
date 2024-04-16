@@ -78,35 +78,35 @@ exports.updateTaskStatus = async (req, res) => {
             return res.status(401).send({ message: "User not set in session" });
         }
 
-        const {task_id, new_status} = req.body;  // Assuming each task has a unique task_id
+        const { task_id, new_status } = req.body; // Assuming each task has a unique task_id
         if (!task_id || !new_status) {
-            return res.status(400).send({ message: "Missing task_id or new_status" });
+            return res
+                .status(400)
+                .send({ message: "Missing task_id or new_status" });
         }
 
         // Ensure new_status is valid
-        const validStatuses = ['to-do', 'completed', 'in-progress'];
+        const validStatuses = ["to-do", "completed", "in-progress"];
         if (!validStatuses.includes(new_status)) {
             return res.status(400).send({ message: "Invalid status provided" });
         }
 
         const task = await prisma.task_data.update({
             where: {
-                id: task_id,  // Using task_id assuming it's unique
-                user_id: req.session.user_id  // Ensuring that the task belongs to the user
+                id: task_id, // Using task_id assuming it's unique
+                user_id: req.session.user_id, // Ensuring that the task belongs to the user
             },
             data: {
-                status: new_status
-            }
+                status: new_status,
+            },
         });
 
-        res.send({ message: "Task status updated successfully"});
-    }
-    catch (error) {
+        res.send({ message: "Task status updated successfully" });
+    } catch (error) {
         console.error("Error updating task status:", error);
         res.status(500).send("Internal Server Error");
     }
 };
-
 
 exports.deleteTask = async (req, res) => {
     const { id } = req.body;
@@ -140,8 +140,43 @@ exports.deleteTask = async (req, res) => {
 };
 
 exports.updateSubtaskStatus = async (req, res) => {
-        
-}
+    const { taskId, description, newStatus } = req.body;
+
+    try {
+        const task = await prisma.task_data.findUnique({
+            where: { id: taskId },
+        });
+
+        if (!task) {
+            return res.status(404).json({ message: "Task not found" });
+        }
+
+        // Locate the subtask by description and update its status
+        const updatedSubTasks = task.sub_tasks.map((subtask) => {
+            if (subtask.description === description) {
+                return { ...subtask, status: newStatus };
+            }
+            return subtask;
+        });
+
+        // Save the updated task back to the database
+        const updatedTask = await prisma.task_data.update({
+            where: { id: taskId },
+            data: { sub_tasks: updatedSubTasks },
+        });
+        //Convert BigInt to string and send response
+        const response = JSON.stringify(updatedTask, (key, value) =>
+            typeof value === "bigint" ? value.toString() : value
+        );
+        res.json({
+            message: "Subtask status updated successfully",
+            response,
+        });
+    } catch (error) {
+        console.error("Error updating subtask status:", error);
+        res.status(500).send("Error updating subtask status");
+    }
+};
 // exports.calculatePriority = async (req, res) => {
 
 //   try {
