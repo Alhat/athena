@@ -33,6 +33,7 @@ const ManualTaskMenu: React.FC<ManualTaskMenuProps> = ({
     const [className, setClassName] = useState("");
     const [description, setDescription] = useState("");
     const [showError, setShowError] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const validateFields = () => {
         // Check if any field is empty
@@ -92,11 +93,16 @@ const ManualTaskMenu: React.FC<ManualTaskMenuProps> = ({
                 course_id: className,
                 weight: 10, // Assuming weight is a fixed value for now
             };
+            console.log("Generating manual task...")
+            setIsLoading(true);
             const response = await axios.post(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/task/generate`,
                 payload,
                 { withCredentials: true }
             );
+            console.log("Completed manual task generation")
+            setIsLoading(false);
+
 
             if (response.data.message === "Task has been generated") {
                 fetchTasks();
@@ -179,8 +185,8 @@ const ManualTaskMenu: React.FC<ManualTaskMenuProps> = ({
                 </ModalBody>
 
                 <ModalFooter>
-                    <Button colorScheme="blue" mr={3} onClick={generateTask}>
-                        Save
+                    <Button colorScheme={isLoading ? "gray" : "blue"} mr={3} onClick={generateTask} isDisabled={isLoading}>
+                        {isLoading ? "Loading..." : "Save"}
                     </Button>
                     <Button onClick={onClose}>Cancel</Button>
                 </ModalFooter>
