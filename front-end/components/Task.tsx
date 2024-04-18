@@ -14,28 +14,31 @@ import Subtasks from "./SubTasks";
 import EditTaskModal from "./EditTaskModal";
 import internal from "stream";
 import TaskDetails from "./TaskDetails";
+import { Task_interface } from "../types/Task";
 
-type TaskDataSubTasks = {
-    description: string;
-    status: string;
-};
+
+// type TaskDataSubTasks = {
+//     description: string;
+//     status: string;
+// };
 
 interface TaskProps {
-    task: {
-        id: number; // Changed from number to string... ??? Still a number, use taskID to access stuff in database
-        title: string;
-        description: string;
-        subTasks: TaskDataSubTasks[]; // Make sure this matches the structure of TaskDataSubTasks if needed
-        taskID: string; // Is this meant to be the same as `id`? From my understanding, `id` is the frontend id for dragging, taskID is for the database
-        courseID: string;
-        estimatedCompletionTime: number; // Match backend field name if different
-        status: string;
-        due_date: number;
-        weight: number;
-        created_at: string;
-        priority: number;
+    // task: {
+    //     id: number; // Changed from number to string... ??? Still a number, use taskID to access stuff in database
+    //     title: string;
+    //     description: string;
+    //     subTasks: TaskDataSubTasks[]; // Make sure this matches the structure of TaskDataSubTasks if needed
+    //     taskID: string; // Is this meant to be the same as `id`? From my understanding, `id` is the frontend id for dragging, taskID is for the database
+    //     courseID: string;
+    //     estimatedCompletionTime: number; // Match backend field name if different
+    //     status: string;
+    //     due_date: number;
+    //     weight: number;
+    //     created_at: string;
+    //     priority: number;
 
-    };
+    // };
+    task: Task_interface;
     provided: DraggableProvided;
     deleteTask: (taskId: string) => void; // Add deleteTask to the props
     updateTask: (taskId: string, newContent: string) => void; // Function to call when edit is saved

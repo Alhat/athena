@@ -4,34 +4,35 @@ import { Draggable, Droppable } from "react-beautiful-dnd";
 import Task from "./Task"; // Import the Task component
 import { AddIcon } from "@chakra-ui/icons";
 import ImportButton from "./ImportButton";
+import { Task_interface } from "../types/Task";
 
-type TaskDataSubTasks = {
-    description: string;
-    status: string;
-};
+// type TaskDataSubTasks = {
+//     description: string;
+//     status: string;
+// };
 
-// Interfaces
-interface Task {
-    id: number;                  // Numeric ID for frontend use
-    title: string;
-    description: string;
-    subTasks: TaskDataSubTasks[];          // Assuming subTasks are an array of strings
-    taskID: string;              // MongoDB ObjectId
-    courseID: string;            // Equivalent to course_id in the backend
-    estimatedCompletionTime: number;
-    status: string;
-    due_date: number;
-    weight: number;
-    created_at: string;
-    priority: number;
-}
+// // Interfaces
+// interface Task {
+//     id: number;                  // Numeric ID for frontend use
+//     title: string;
+//     description: string;
+//     subTasks: TaskDataSubTasks[];          // Assuming subTasks are an array of strings
+//     taskID: string;              // MongoDB ObjectId
+//     courseID: string;            // Equivalent to course_id in the backend
+//     estimatedCompletionTime: number;
+//     status: string;
+//     due_date: number;
+//     weight: number;
+//     created_at: string;
+//     priority: number;
+// }
 
 interface ColumnProps {
     column: {
         id: string;
         title: string;
     };
-    tasks: Task[];
+    tasks: Task_interface[];
     deleteTask: (taskId: string) => void; // Add deleteTask to the props
     updateTask: (taskId: string, newContent: string) => void; // Add this prop
     onCreateTask?: () => void; // Optional because not all columns may have this button

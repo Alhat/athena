@@ -20,31 +20,33 @@ import {
     useColorModeValue,
 } from "@chakra-ui/react";
 import axios from "axios";
+import { Task_interface, TaskDataSubTasks } from "../types/Task";
 
-type TaskDataSubTasks = {
-    description: string;
-    status: string;
-};
 
-type Task = {
-    id: number;
-    title: string;
-    description: string;
-    subTasks: TaskDataSubTasks[];
-    taskID: string;
-    courseID: string;
-    estimatedCompletionTime: number;
-    status: string;
-    due_date: number;
-    weight: number;
-    created_at: string;
-    priority: number;
-};
+// type TaskDataSubTasks = {
+//     description: string;
+//     status: string;
+// };
+
+// type Task = {
+//     id: number;
+//     title: string;
+//     description: string;
+//     subTasks: TaskDataSubTasks[];
+//     taskID: string;
+//     courseID: string;
+//     estimatedCompletionTime: number;
+//     status: string;
+//     due_date: number;
+//     weight: number;
+//     created_at: string;
+//     priority: number;
+// };
 
 interface TaskDetailsProps {
     isOpen: boolean;
     onClose: () => void;
-    task: Task;
+    task: Task_interface;
 }
 
 const TaskDetails: React.FC<TaskDetailsProps> = ({ isOpen, onClose, task }) => {
