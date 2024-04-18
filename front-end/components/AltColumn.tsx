@@ -20,6 +20,10 @@ interface Task {
     courseID: string;            // Equivalent to course_id in the backend
     estimatedCompletionTime: number;
     status: string;
+    due_date: number;
+    weight: number;
+    created_at: string;
+    priority: number;
 }
 
 interface ColumnProps {
@@ -28,7 +32,7 @@ interface ColumnProps {
         title: string;
     };
     tasks: Task[];
-    deleteTask: (taskId: number) => void; // Add deleteTask to the props
+    deleteTask: (taskId: string) => void; // Add deleteTask to the props
     updateTask: (taskId: string, newContent: string) => void; // Add this prop
     onCreateTask?: () => void; // Optional because not all columns may have this button
     fetchTasks: () => void;

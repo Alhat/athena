@@ -11,9 +11,10 @@ import {
     FormLabel,
     Input,
     Textarea,
+    Flex,
 } from "@chakra-ui/react";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface ManualTaskMenuProps {
     isOpen: boolean;
@@ -30,12 +31,22 @@ const ManualTaskMenu: React.FC<ManualTaskMenuProps> = ({
     const finalRef = React.useRef(null);
     const [title, setTitle] = useState("");
     const [dueDate, setDueDate] = useState("");
+    const [dueYear, setDueYear] = useState("");
+    const [dueMonth, setDueMonth] = useState("");
+    const [dueDay, setDueDay] = useState("");
     const [className, setClassName] = useState("");
     const [description, setDescription] = useState("");
     const [showError, setShowError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
+
+    useEffect(() => {
+        setDueDate(`${dueYear}-${dueMonth}-${dueDay}`);
+    }, [dueYear, dueMonth, dueDay]);
+
     const validateFields = () => {
+        console.log("Validating fields, due date is currently: ", dueDate);
+
         // Check if any field is empty
         if (
             !title.trim() ||
@@ -67,8 +78,14 @@ const ManualTaskMenu: React.FC<ManualTaskMenuProps> = ({
             case "title":
                 setTitle(value);
                 break;
-            case "dueDate":
-                setDueDate(value);
+            case "dueYear":
+                setDueYear(value);
+                break;
+            case "dueMonth":
+                setDueMonth(value);
+                break;
+            case "dueDay":
+                setDueDay(value);
                 break;
             case "className":
                 setClassName(value);
@@ -113,6 +130,7 @@ const ManualTaskMenu: React.FC<ManualTaskMenuProps> = ({
                 );
             }
         } catch (error) {
+            setIsLoading(false);
             console.error("Generate task failed: ", error);
         }
     };
@@ -143,13 +161,32 @@ const ManualTaskMenu: React.FC<ManualTaskMenuProps> = ({
 
                     <FormControl mt={4}>
                         <FormLabel color={"white"}>Due Date</FormLabel>
-                        <Input
-                            name="dueDate"
-                            placeholder="202X-MM-DD"
-                            color="white"
-                            value={dueDate}
-                            onChange={handleInputChange}
-                        />
+                        <Flex>
+                            <Input
+                                name="dueYear"
+                                placeholder="202X"
+                                color="white"
+                                value={dueYear}
+                                onChange={handleInputChange}
+                                maxLength={4}
+                            />
+                            <Input
+                                name="dueMonth"
+                                placeholder="MM"
+                                color="white"
+                                value={dueMonth}
+                                onChange={handleInputChange}
+                                maxLength={2}
+                            />
+                            <Input
+                                name="dueDay"
+                                placeholder="DD"
+                                color="white"
+                                value={dueDay}
+                                onChange={handleInputChange}
+                                maxLength={2}
+                            />
+                        </Flex>
                     </FormControl>
 
                     <FormControl mt={4}>

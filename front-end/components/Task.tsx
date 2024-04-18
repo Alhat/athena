@@ -22,17 +22,22 @@ type TaskDataSubTasks = {
 
 interface TaskProps {
     task: {
-        id: number; // Changed from number to string
+        id: number; // Changed from number to string... ??? Still a number, use taskID to access stuff in database
         title: string;
         description: string;
         subTasks: TaskDataSubTasks[]; // Make sure this matches the structure of TaskDataSubTasks if needed
-        taskID: string; // Is this meant to be the same as `id`?
+        taskID: string; // Is this meant to be the same as `id`? From my understanding, `id` is the frontend id for dragging, taskID is for the database
         courseID: string;
         estimatedCompletionTime: number; // Match backend field name if different
         status: string;
+        due_date: number;
+        weight: number;
+        created_at: string;
+        priority: number;
+
     };
     provided: DraggableProvided;
-    deleteTask: (taskId: number) => void; // Add deleteTask to the props
+    deleteTask: (taskId: string) => void; // Add deleteTask to the props
     updateTask: (taskId: string, newContent: string) => void; // Function to call when edit is saved
 }
 
@@ -102,7 +107,7 @@ const Task: React.FC<TaskProps> = ({
                     variant="ghost"
                     colorScheme="red"
                     ml={2} // Add margin for consistent spacing between icons
-                    onClick={() => deleteTask(task.id)} // Use deleteTask when the button is clicked
+                    onClick={() => deleteTask(task.taskID)} // Use deleteTask when the button is clicked
                 />
                 <IconButton
                     aria-label="View subtasks"

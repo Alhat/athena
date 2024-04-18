@@ -35,7 +35,7 @@ async function getAssignments(req, res) {
                 )
         );
 
-        // Convert BigInt to string and send response
+        // Convert BigInt (due date) to string and send response
         const response = JSON.stringify(filteredAssignments, (key, value) =>
             typeof value === "bigint" ? value.toString() : value
         );
@@ -66,7 +66,7 @@ async function generateTasksFromSelectedAssignments(req, res) {
         const assignments = await prisma.assignment_data.findMany({
             where: {
                 user: req.session.user_id,
-                title: { in: assignmentList },
+                id: { in: assignmentList },
             },
         });
 
@@ -110,7 +110,6 @@ async function generateTasksFromSelectedAssignments(req, res) {
             })
         );
 
-        console.log("Tasks: \n\n\n\n\n" + tasks + "\n\n\n\n\n\n");
         // Save the tasks to the database
         const createdTasks = await prisma.task_data.createMany({
             data: tasks,

@@ -16,8 +16,8 @@ interface ColumnProps {
     title: string;
   };
   tasks: Task[];
-  deleteTask: (taskId: number) => void; // Add deleteTask to the props
-  updateTask: (taskId: number, newContent: string) => void; // Add this prop
+  deleteTask: (taskId: string) => void; // Add deleteTask to the props
+  updateTask: (taskId: string, newContent: string) => void; // Add this prop
   onCreateTask?: () => void; // Optional because not all columns may have this button
 }
 

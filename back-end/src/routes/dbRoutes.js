@@ -6,7 +6,7 @@ router.get("/assignments", dbController.getAssignments);
 
 router.get("/user-data", dbController.getUserStats);
 
-router.get(
+router.post(
     "/import/selected-assignments",
     dbController.generateTasksFromSelectedAssignments
 );

@@ -29,6 +29,10 @@ interface Task {
     courseID: string; // Equivalent to course_id in the backend
     estimatedCompletionTime: number;
     status: string;
+    due_date: number;
+    weight: number;
+    created_at: string;
+    priority: number;
 }
 
 type ColumnKey = "toDo" | "inProgress" | "completed";
@@ -67,16 +71,20 @@ const KanbanBoard: React.FC = () => {
                     courseID: task.course_id,
                     estimatedCompletionTime: task.estimated_completion_time,
                     status: task.status,
+                    due_date: task.due_date,
+                    weight: task.weight,
+                    created_at: task.created_at,
+                    priority: task.priority,
                 })
             );
 
             // Sorting tasks into columns based on their status
             const newColumns: Columns = {
-                toDo: tasks.filter((task) => task.status === "to-do"),
+                toDo: tasks.filter((task) => task.status === "to-do"), // toDO
                 inProgress: tasks.filter(
-                    (task) => task.status === "in-progress"
+                    (task) => task.status === "in-progress" // inProgress
                 ),
-                completed: tasks.filter((task) => task.status === "completed"),
+                completed: tasks.filter((task) => task.status === "completed"), // completed
             };
 
             setColumns(newColumns);
@@ -105,6 +113,27 @@ const KanbanBoard: React.FC = () => {
             return;
         }
 
+        const task = columns[source.droppableId as ColumnKey][source.index];
+        let newStatus;
+        switch (destination.droppableId) {
+            case "toDo":
+                newStatus = "to-do";
+                break;
+            
+            case "inProgress":
+                newStatus = "in-progress";
+                break;
+
+            case "completed":
+                newStatus = "completed";
+                break;
+        
+            default:
+                break;
+        }
+
+        if (newStatus && task.taskID) updateTaskStatus(newStatus, task.taskID);
+
         const sourceCol = columns[source.droppableId as ColumnKey];
         const destinationCol = columns[destination.droppableId as ColumnKey];
         const [removed] = sourceCol.splice(source.index, 1);
@@ -117,17 +146,52 @@ const KanbanBoard: React.FC = () => {
         });
     };
 
+    const updateTaskStatus = async (newStatus: string, taskId: string) => {
+        try {
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/task/update-status`,
+                {task_id: taskId, new_status: newStatus},
+                { withCredentials: true }
+            );
+            console.log("Task status updated:", response.data);
+        } catch (error) {
+            console.error("Failed to update task status:", error);
+        }
+
+    };
+
+    
+
     // Add a new function to handle task deletion
-    const deleteTask = (id: number) => {
+    const deleteTask = async (taskId: string) => {
         // Create a new copy of columns with the task removed
         const newColumns = {
-            toDo: columns.toDo.filter((task) => task.id !== id),
-            inProgress: columns.inProgress.filter((task) => task.id !== id),
-            completed: columns.completed.filter((task) => task.id !== id),
+            toDo: columns.toDo.filter((task) => task.taskID != taskId),
+            inProgress: columns.inProgress.filter(
+                (task) => task.taskID != taskId
+            ),
+            completed: columns.completed.filter(
+                (task) => task.taskID != taskId
+            ),
         };
-
         // Update the columns state
         setColumns(newColumns);
+
+        try {
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/task/delete-task`,
+                { id: taskId },
+                { withCredentials: true }
+            );
+
+            if (response.data.message === "Task was successfully deleted") {
+                console.log("Succesfully deleted task");
+            } else {
+                console.log("Failed to delete task");
+            }
+        } catch (error) {
+            console.error("Delete task failed: ", error);
+        }
     };
 
     const updateTask = (taskId: string, newContent: string) => {
@@ -163,6 +227,11 @@ const KanbanBoard: React.FC = () => {
             courseID: "Course 101",
             estimatedCompletionTime: 69,
             status: "to-do",
+            due_date: 0,
+            weight: 0,
+            created_at: "",
+            priority: 0,
+
         };
 
         setColumns({
