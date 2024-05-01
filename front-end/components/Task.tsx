@@ -1,5 +1,5 @@
 // components/Task.tsx
-import React from "react";
+import React, { useState } from "react";
 import { DraggableProvided } from "react-beautiful-dnd";
 import {
     Flex,
@@ -8,13 +8,14 @@ import {
     useColorModeValue,
     IconButton,
     useDisclosure,
+    Progress,
 } from "@chakra-ui/react";
 import { DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
 import Subtasks from "./SubTasks";
 import EditTaskModal from "./EditTaskModal";
 import internal from "stream";
 import TaskDetails from "./TaskDetails";
-import { Task_interface } from "../types/Task";
+import { Task_interface, TaskDataSubTasks } from "../types/Task";
 
 
 // type TaskDataSubTasks = {
@@ -65,20 +66,50 @@ const Task: React.FC<TaskProps> = ({
 
     /**
      * 
+     * @param epoch_millis of due date
+     * @returns readable date time due date
      */
     const convert_to_human_readable_date = (epoch_millis: number) => {
         
         let date = new Date(epoch_millis);
-
-
         const dateOptions = { year: '2-digit', month: 'numeric', day: 'numeric' };
         const timeOptions = { timeStyle: 'short', hour12: true };
-
         const readable_date = date.toLocaleDateString('en-US', dateOptions); // it's throwing an error but works exactly how i want it, typescript moment
         const readable_time = date.toLocaleTimeString('en-US', timeOptions);
-
         return (readable_date + " " + readable_time);
+    };
+
+    const [subTasks, setSubTasks] = useState<TaskDataSubTasks[]>(task.subTasks);
+    /**
+     * 
+     * @returns progress of task
+     */
+    const calculateProgress = () => {
+        const completedSubtasks = subTasks.filter(
+            (subtask) => subtask.status === "completed"
+        ).length;
+        return (completedSubtasks / subTasks.length) * 100;
+    };
+
+    /**
+     * 
+     * @param status the status of the task
+     * @returns what extra tile info to show for to-do and completed
+     */
+    const extra_tile_info = (task: Task_interface) => {     
+        switch (task.status) {
+            case "to-do":
+                return <Text color="whiteAlpha.900" fontSize="sm">Weight: { task.weight }%</Text>;
+            
+            case "in-progress":
+                return <Progress colorScheme="green" size="sm" value={calculateProgress()} w="100px" />
+            
+            case "completed":
+                return <Progress colorScheme="green" size="sm" value={calculateProgress()} w="100px" />;
         
+            default:
+                return "error";
+        }
     };
 
     return (
@@ -100,8 +131,9 @@ const Task: React.FC<TaskProps> = ({
             position="relative"
             justifyContent="space-between"
             alignItems="center"
+            display="flex"
         >
-            <Box flex="1" minW="0">
+            <Box flex="2" minW="0">
                 <Text
                     color="whiteAlpha.900"
                     fontSize="md"
@@ -120,33 +152,36 @@ const Task: React.FC<TaskProps> = ({
                     {convert_to_human_readable_date(task.due_date)}
                 </Text>
             </Box>
-            <Box>
-                <IconButton
-                    aria-label="Edit task"
-                    icon={<EditIcon />}
-                    size="sm"
-                    variant="ghost"
-                    colorScheme="purple"
-                    onClick={onEditOpen} // Open edit modal
-                />
-                <IconButton
-                    aria-label="Delete task"
-                    icon={<DeleteIcon />}
-                    size="sm"
-                    variant="ghost"
-                    colorScheme="red"
-                    ml={2} // Add margin for consistent spacing between icons
-                    onClick={() => deleteTask(task.taskID)} // Use deleteTask when the button is clicked
-                />
-                <IconButton
-                    aria-label="View subtasks"
-                    icon={<ViewIcon />}
-                    size="sm"
-                    variant="ghost"
-                    colorScheme="teal"
-                    onClick={onSubtasksOpen}
-                />
-            </Box>
+            <Box flex="1" minW="0" ml="auto">
+                <Box>
+                    <IconButton
+                        aria-label="Edit task"
+                        icon={<EditIcon />}
+                        size="sm"
+                        variant="ghost"
+                        colorScheme="purple"
+                        onClick={onEditOpen} // Open edit modal
+                    />
+                    <IconButton
+                        aria-label="Delete task"
+                        icon={<DeleteIcon />}
+                        size="sm"
+                        variant="ghost"
+                        colorScheme="red"
+                        ml={1} // Add margin for consistent spacing between icons
+                        onClick={() => deleteTask(task.taskID)} // Use deleteTask when the button is clicked
+                    />
+                    <IconButton
+                        aria-label="View subtasks"
+                        icon={<ViewIcon />}
+                        size="sm"
+                        variant="ghost"
+                        colorScheme="teal"
+                        onClick={onSubtasksOpen}
+                    />
+                </Box>
+                { extra_tile_info(task) }
+            </Box> 
             <TaskDetails
                 isOpen={isSubtasksOpen}
                 onClose={onSubtasksClose}
