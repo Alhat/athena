@@ -1,5 +1,5 @@
 // components/Task.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DraggableProvided } from "react-beautiful-dnd";
 import {
     Flex,
@@ -43,6 +43,7 @@ interface TaskProps {
     provided: DraggableProvided;
     deleteTask: (taskId: string) => void; // Add deleteTask to the props
     updateTask: (taskId: string, newContent: string) => void; // Function to call when edit is saved
+    handleStatusToggle: (taskId: string, description: string) => void;
 }
 
 const Task: React.FC<TaskProps> = ({
@@ -50,6 +51,7 @@ const Task: React.FC<TaskProps> = ({
     provided,
     deleteTask,
     updateTask,
+    handleStatusToggle,
 }) => {
     const bgColor = useColorModeValue("gray.700", "gray.800");
     const borderColor = useColorModeValue("gray.600", "gray.700");
@@ -79,16 +81,15 @@ const Task: React.FC<TaskProps> = ({
         return (readable_date + " " + readable_time);
     };
 
-    const [subTasks, setSubTasks] = useState<TaskDataSubTasks[]>(task.subTasks);
     /**
      * 
      * @returns progress of task
      */
     const calculateProgress = () => {
-        const completedSubtasks = subTasks.filter(
+        const completedSubtasks = task.subTasks.filter(
             (subtask) => subtask.status === "completed"
         ).length;
-        return (completedSubtasks / subTasks.length) * 100;
+        return (completedSubtasks / task.subTasks.length) * 100;
     };
 
     /**
@@ -186,6 +187,7 @@ const Task: React.FC<TaskProps> = ({
                 isOpen={isSubtasksOpen}
                 onClose={onSubtasksClose}
                 task={task}  // Need to change the stuff displayed here later
+                handleStatusToggle={handleStatusToggle}
             />
             <EditTaskModal
                 isOpen={isEditOpen}

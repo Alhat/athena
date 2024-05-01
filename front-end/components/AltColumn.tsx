@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Flex, IconButton, Text } from "@chakra-ui/react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import Task from "./Task"; // Import the Task component
 import { AddIcon } from "@chakra-ui/icons";
 import ImportButton from "./ImportButton";
-import { Task_interface } from "../types/Task";
+import { Task_interface, TaskDataSubTasks } from "../types/Task";
+import axios from "axios";
 
 // type TaskDataSubTasks = {
 //     description: string;
@@ -47,6 +48,60 @@ const AltColumn: React.FC<ColumnProps> = ({
     onCreateTask,
     fetchTasks
 }) => {
+
+    const [updatedSubTasks, setUpdatedSubTasks] = useState<TaskDataSubTasks[]>([]);
+    const handleStatusToggle = async (taskId: string, description: string) => {
+
+        const task = tasks.find(task => task.taskID == taskId);
+        if (!task) {
+            console.log("ALCOLUMN: COULD NOT FIND TASK WITH ID IN HANDLE STATUS TOGGLE!");
+            return;
+        } 
+
+        const updatedSubTasks = task.subTasks.map((subtask) => {
+            if (subtask.description === description) {
+                return {
+                    ...subtask,
+                    status:
+                        subtask.status === "completed"
+                            ? "incomplete"
+                            : "completed",
+                };
+            }
+            return subtask;
+        });
+        // setSubTasks(updatedSubTasks);
+        const oldSubtasks = task.subTasks; // backup
+        task.subTasks = updatedSubTasks
+
+        const payload = {
+            description,
+            newStatus: updatedSubTasks.find(
+                (subtask) => subtask.description === description
+            )?.status,
+            taskId: task.taskID,
+        };
+
+        try {
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/task/update-subtask-status`,
+                payload,
+                { withCredentials: true }
+            );
+            console.log("Subtask status updated:", response.data);
+        } catch (error) {
+            console.error("Failed to update subtask status:", error);
+            // Optionally revert the state if the backend call fails
+            // setSubTasks(subTasks);
+            task.subTasks = oldSubtasks;
+        }
+        setUpdatedSubTasks(updatedSubTasks);
+    };
+
+    // useEffect(() => {
+    //     setSubTasks(task.subTasks);
+    // }, [task]);
+
     return (
         <Flex rounded="3px" bg="column-bg" w="400px" h="620px" flexDir="column">
             <Flex
@@ -97,6 +152,7 @@ const AltColumn: React.FC<ColumnProps> = ({
                                         //isDragging={draggableProvided.draggableProps.style?.transform ? true : false}
                                         deleteTask={deleteTask} // Pass deleteTask to Task
                                         updateTask={updateTask} // And here you pass updateTask to the Task
+                                        handleStatusToggle={handleStatusToggle}
                                     />
                                 )}
                             </Draggable>

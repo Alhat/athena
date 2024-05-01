@@ -47,62 +47,63 @@ interface TaskDetailsProps {
     isOpen: boolean;
     onClose: () => void;
     task: Task_interface;
+    handleStatusToggle: (taskId: string, description: string) => void;
 }
 
-const TaskDetails: React.FC<TaskDetailsProps> = ({ isOpen, onClose, task }) => {
-    const [subTasks, setSubTasks] = useState<TaskDataSubTasks[]>(task.subTasks);
+const TaskDetails: React.FC<TaskDetailsProps> = ({ isOpen, onClose, task, handleStatusToggle }) => {
+    // const [subTasks, setSubTasks] = useState<TaskDataSubTasks[]>(task.subTasks);
 
     const calculateProgress = () => {
-        const completedSubtasks = subTasks.filter(
+        const completedSubtasks = task.subTasks.filter(
             (subtask) => subtask.status === "completed"
         ).length;
-        return (completedSubtasks / subTasks.length) * 100;
+        return (completedSubtasks / task.subTasks.length) * 100;
     };
 
-    const handleStatusToggle = async (description: string) => {
-        const updatedSubTasks = subTasks.map((subtask) => {
-            if (subtask.description === description) {
-                return {
-                    ...subtask,
-                    status:
-                        subtask.status === "completed"
-                            ? "incomplete"
-                            : "completed",
-                };
-            }
-            return subtask;
-        });
-        setSubTasks(updatedSubTasks);
+    // const handleStatusToggle = async (description: string) => {
+    //     const updatedSubTasks = subTasks.map((subtask) => {
+    //         if (subtask.description === description) {
+    //             return {
+    //                 ...subtask,
+    //                 status:
+    //                     subtask.status === "completed"
+    //                         ? "incomplete"
+    //                         : "completed",
+    //             };
+    //         }
+    //         return subtask;
+    //     });
+    //     setSubTasks(updatedSubTasks);
 
-        const payload = {
-            description,
-            newStatus: updatedSubTasks.find(
-                (subtask) => subtask.description === description
-            )?.status,
-            taskId: task.taskID,
-        };
+    //     const payload = {
+    //         description,
+    //         newStatus: updatedSubTasks.find(
+    //             (subtask) => subtask.description === description
+    //         )?.status,
+    //         taskId: task.taskID,
+    //     };
 
-        try {
-            const response = await axios.post(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/task/update-subtask-status`,
-                payload,
-                { withCredentials: true }
-            );
-            console.log("Subtask status updated:", response.data);
-        } catch (error) {
-            console.error("Failed to update subtask status:", error);
-            // Optionally revert the state if the backend call fails
-            setSubTasks(subTasks);
-        }
-    };
+    //     try {
+    //         const response = await axios.post(
+    //             `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/task/update-subtask-status`,
+    //             payload,
+    //             { withCredentials: true }
+    //         );
+    //         console.log("Subtask status updated:", response.data);
+    //     } catch (error) {
+    //         console.error("Failed to update subtask status:", error);
+    //         // Optionally revert the state if the backend call fails
+    //         setSubTasks(subTasks);
+    //     }
+    // };
 
     const inactiveTabBg = useColorModeValue("gray.600", "gray.700");
     const inactiveTabColor = useColorModeValue("gray.400", "gray.500");
     const activeTabColor = "white";
     
-    useEffect(() => {
-        setSubTasks(task.subTasks);
-    }, [task]);
+    // useEffect(() => {
+    //     setSubTasks(task.subTasks);
+    // }, [task]);
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} size="6xl">
@@ -149,7 +150,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ isOpen, onClose, task }) => {
                             </TabPanel>
                             <TabPanel>
                                 <VStack align="stretch">
-                                    {subTasks.map((subtask, index) => (
+                                    {task.subTasks.map((subtask, index) => (
                                         <HStack
                                             key={`${subtask.description}-${index}`}
                                             justify="space-between"
@@ -163,9 +164,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ isOpen, onClose, task }) => {
                                                     "completed"
                                                 }
                                                 onChange={() =>
-                                                    handleStatusToggle(
-                                                        subtask.description
-                                                    )
+                                                    handleStatusToggle(task.taskID, subtask.description)
                                                 }
                                             />
                                         </HStack>
