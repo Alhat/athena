@@ -9,7 +9,7 @@ import { title } from "process";
 import axios from "axios"; // Import axios for making HTTP requests
 import { randomInt } from "crypto";
 import { error } from "console";
-import { Task_interface } from "../types/Task";
+import { Task_interface, TaskDataSubTasks } from "../types/Task";
 
 
 const Column = dynamic(() => import("../components/Column"), { ssr: false });
@@ -134,6 +134,7 @@ const KanbanBoard: React.FC = () => {
                 break;
         }
 
+        if (newStatus) task.status = newStatus;
         if (newStatus && task.taskID) updateTaskStatus(newStatus, task.taskID);
 
         const sourceCol = columns[source.droppableId as ColumnKey];
