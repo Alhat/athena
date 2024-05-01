@@ -63,6 +63,24 @@ const Task: React.FC<TaskProps> = ({
         onClose: onSubtasksClose,
     } = useDisclosure();
 
+    /**
+     * 
+     */
+    const convert_to_human_readable_date = (epoch_millis: number) => {
+        
+        let date = new Date(epoch_millis);
+
+
+        const dateOptions = { year: '2-digit', month: 'numeric', day: 'numeric' };
+        const timeOptions = { timeStyle: 'short', hour12: true };
+
+        const readable_date = date.toLocaleDateString('en-US', dateOptions); // it's throwing an error but works exactly how i want it, typescript moment
+        const readable_time = date.toLocaleTimeString('en-US', timeOptions);
+
+        return (readable_date + " " + readable_time);
+        
+    };
+
     return (
         <Flex
             ref={provided.innerRef}
@@ -92,6 +110,14 @@ const Task: React.FC<TaskProps> = ({
                     mr={8} // Add right margin to prevent text from overlapping icons
                 >
                     {task.title}
+                </Text>
+                <Text
+                    color="whiteAlpha.900"
+                    fontSize="sm"
+                    isTruncated
+                    mr={8} // Add right margin to prevent text from overlapping icons
+                >
+                    {convert_to_human_readable_date(task.due_date)}
                 </Text>
             </Box>
             <Box>
