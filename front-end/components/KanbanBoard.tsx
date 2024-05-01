@@ -9,38 +9,40 @@ import { title } from "process";
 import axios from "axios"; // Import axios for making HTTP requests
 import { randomInt } from "crypto";
 import { error } from "console";
+import { Task_interface, TaskDataSubTasks } from "../types/Task";
+
 
 const Column = dynamic(() => import("../components/Column"), { ssr: false });
 const AltColumn = dynamic(() => import("../components/AltColumn"), {
     ssr: false,
 });
 
-type TaskDataSubTasks = {
-    description: string;
-    status: string;
-};
+// type TaskDataSubTasks = {
+//     description: string;
+//     status: string;
+// };
 
-interface Task {
-    id: number; // Numeric ID for frontend use
-    title: string;
-    description: string;
-    subTasks: TaskDataSubTasks[]; // Assuming subTasks are an array of strings
-    taskID: string; // MongoDB ObjectId
-    courseID: string; // Equivalent to course_id in the backend
-    estimatedCompletionTime: number;
-    status: string;
-    due_date: number;
-    weight: number;
-    created_at: string;
-    priority: number;
-}
+// interface Task {
+//     id: number; // Numeric ID for frontend use
+//     title: string;
+//     description: string;
+//     subTasks: TaskDataSubTasks[]; // Assuming subTasks are an array of strings
+//     taskID: string; // MongoDB ObjectId
+//     courseID: string; // Equivalent to course_id in the backend
+//     estimatedCompletionTime: number;
+//     status: string;
+//     due_date: number;
+//     weight: number;
+//     created_at: string;
+//     priority: number;
+// }
 
 type ColumnKey = "toDo" | "inProgress" | "completed";
 
 interface Columns {
-    toDo: Task[];
-    inProgress: Task[];
-    completed: Task[];
+    toDo: Task_interface[];
+    inProgress: Task_interface[];
+    completed: Task_interface[];
 }
 
 const initialColumns: Columns = {
@@ -61,7 +63,7 @@ const KanbanBoard: React.FC = () => {
             const fetchedTasks = response.data;
 
             // Convert and map tasks to fit the frontend interface
-            const tasks: Task[] = fetchedTasks.map(
+            const tasks: Task_interface[] = fetchedTasks.map(
                 (task: any, index: number) => ({
                     id: index + 1, // Create a numeric ID based on the index if needed
                     title: task.title,
@@ -132,6 +134,7 @@ const KanbanBoard: React.FC = () => {
                 break;
         }
 
+        if (newStatus) task.status = newStatus;
         if (newStatus && task.taskID) updateTaskStatus(newStatus, task.taskID);
 
         const sourceCol = columns[source.droppableId as ColumnKey];
@@ -218,7 +221,7 @@ const KanbanBoard: React.FC = () => {
 
     const createTask = () => {
         console.log("createTask called");
-        const newTask: Task = {
+        const newTask: Task_interface = {
             id: randomInt(100, 2000), // Ensuring unique ID generation
             taskID: crypto.randomUUID(), // Use a proper UUID
             title: "New Task",
