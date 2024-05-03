@@ -11,7 +11,6 @@ import { randomInt } from "crypto";
 import { error } from "console";
 import { Task_interface, TaskDataSubTasks } from "../types/Task";
 
-
 const Column = dynamic(() => import("../components/Column"), { ssr: false });
 const AltColumn = dynamic(() => import("../components/AltColumn"), {
     ssr: false,
@@ -54,39 +53,79 @@ const initialColumns: Columns = {
 const KanbanBoard: React.FC = () => {
     const [columns, setColumns] = useState<Columns>(initialColumns);
 
+    // const fetchTasks = async () => {
+    //     try {
+    //         const response = await axios.get(
+    //             `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/tasks`,
+    //             { withCredentials: true }
+    //         );
+    //         const fetchedTasks = response.data;
+
+    //         // Convert and map tasks to fit the frontend interface
+    //         const tasks: Task_interface[] = fetchedTasks.map(
+    //             (task: any, index: number) => ({
+    //                 id: index + 1, // Create a numeric ID based on the index if needed
+    //                 title: task.title,
+    //                 description: task.description,
+    //                 subTasks: task.sub_tasks, // Assuming sub_tasks is correct and it's an array of strings
+    //                 taskID: task.id, // Assuming the backend uses _id for MongoDB ObjectId
+    //                 courseID: task.course_id,
+    //                 estimatedCompletionTime: task.estimated_completion_time,
+    //                 status: task.status,
+    //                 due_date: task.due_date,
+    //                 weight: task.weight,
+    //                 created_at: task.created_at,
+    //                 priority: task.priority,
+    //             })
+    //         );
+
+    //         // Sorting tasks into columns based on their status
+    //         const newColumns: Columns = {
+    //             toDo: tasks.filter((task) => task.status === "to-do"), // toDO
+    //             inProgress: tasks.filter(
+    //                 (task) => task.status === "in-progress" // inProgress
+    //             ),
+    //             completed: tasks.filter((task) => task.status === "completed"), // completed
+    //         };
+
+    //         setColumns(newColumns);
+    //     } catch (error) {
+    //         console.error("Failed to fetch tasks:", error);
+    //     }
+    // };
+
     const fetchTasks = async () => {
         try {
             const response = await axios.get(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/tasks`,
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/user/filtered-tasks`,
                 { withCredentials: true }
             );
-            const fetchedTasks = response.data;
+            const fetchedColumns = response.data;
+            console.log('Fetched Columns: ', fetchedColumns)
 
-            // Convert and map tasks to fit the frontend interface
-            const tasks: Task_interface[] = fetchedTasks.map(
-                (task: any, index: number) => ({
-                    id: index + 1, // Create a numeric ID based on the index if needed
+            // Prepare tasks for the frontend interface
+            let i = 0;
+            const prepareTasks = (tasks: any) =>
+                tasks.map((task: any, index: number) => ({
+                    id: ++i, // Create a numeric ID based on the index if needed
                     title: task.title,
                     description: task.description,
-                    subTasks: task.sub_tasks, // Assuming sub_tasks is correct and it's an array of strings
-                    taskID: task.id, // Assuming the backend uses _id for MongoDB ObjectId
+                    subTasks: task.sub_tasks, // Ensure this matches the backend structure
+                    taskID: task.id, // Adjust if the backend uses _id
                     courseID: task.course_id,
                     estimatedCompletionTime: task.estimated_completion_time,
                     status: task.status,
                     due_date: task.due_date,
                     weight: task.weight,
-                    created_at: task.created_at,
+                    created_at: task.created_at, // Convert if timestamp
                     priority: task.priority,
-                })
-            );
+                }));
 
-            // Sorting tasks into columns based on their status
-            const newColumns: Columns = {
-                toDo: tasks.filter((task) => task.status === "to-do"), // toDO
-                inProgress: tasks.filter(
-                    (task) => task.status === "in-progress" // inProgress
-                ),
-                completed: tasks.filter((task) => task.status === "completed"), // completed
+            // Convert and map tasks to fit the frontend interface
+            const newColumns = {
+                toDo: prepareTasks(fetchedColumns.toDo),
+                inProgress: prepareTasks(fetchedColumns.inProgress),
+                completed: prepareTasks(fetchedColumns.completed),
             };
 
             setColumns(newColumns);
@@ -121,7 +160,7 @@ const KanbanBoard: React.FC = () => {
             case "toDo":
                 newStatus = "to-do";
                 break;
-            
+
             case "inProgress":
                 newStatus = "in-progress";
                 break;
@@ -129,7 +168,7 @@ const KanbanBoard: React.FC = () => {
             case "completed":
                 newStatus = "completed";
                 break;
-        
+
             default:
                 break;
         }
@@ -153,17 +192,15 @@ const KanbanBoard: React.FC = () => {
         try {
             const response = await axios.post(
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/task/update-status`,
-                {task_id: taskId, new_status: newStatus},
+                { task_id: taskId, new_status: newStatus },
                 { withCredentials: true }
             );
             console.log("Task status updated:", response.data);
+            fetchTasks();
         } catch (error) {
             console.error("Failed to update task status:", error);
         }
-
     };
-
-    
 
     // Add a new function to handle task deletion
     const deleteTask = async (taskId: string) => {
@@ -234,7 +271,6 @@ const KanbanBoard: React.FC = () => {
             weight: 0,
             created_at: "",
             priority: 0,
-
         };
 
         setColumns({
@@ -272,7 +308,7 @@ const KanbanBoard: React.FC = () => {
                         tasks={columns.inProgress}
                         deleteTask={deleteTask}
                         updateTask={updateTask}
-                        fetchTasks={() => {}}
+                        fetchTasks={fetchTasks}
                     />
 
                     <AltColumn
@@ -281,7 +317,7 @@ const KanbanBoard: React.FC = () => {
                         tasks={columns.completed}
                         deleteTask={deleteTask}
                         updateTask={updateTask}
-                        fetchTasks={() => {}}
+                        fetchTasks={fetchTasks}
                     />
                 </Flex>
             </Flex>

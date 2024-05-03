@@ -2,10 +2,19 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 async function addNewFieldToDocuments() {
-    const updateResult = await prisma.task_data.updateMany({
+    const updateResult = await prisma.user_data.updateMany({
         data: {
-            running_time: 0, // Set a default value for the new field
-            completion_time: 0,
+            // Assuming 'settings' is a JSON column, you can use this syntax:
+            settings: {
+                // Merge the existing 'settings' with new fields
+                set: {
+                    notifications: false,
+                    theme: "dark",
+                    toDoFilter: "priority",
+                    inProgressFilter: "priority",
+                    doneFilter: "priority",
+                },
+            },
         },
     });
 
@@ -19,3 +28,5 @@ addNewFieldToDocuments()
     .finally(async () => {
         await prisma.$disconnect();
     });
+
+

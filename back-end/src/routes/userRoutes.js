@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
-const { setUser, getTasks, updateUser, deleteUser } = require('../controllers/userController');
+const { setUser, getTasks, updateUser, deleteUser, getTasksFiltered } = require('../controllers/userController');
 const prisma = new PrismaClient();
 
 router.get('/tasks', getTasks);
+router.get('/filtered-tasks', getTasksFiltered);
 
 // Read RequestExamples.txt for how to use
 router.post('/set-user', setUser);

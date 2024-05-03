@@ -177,6 +177,60 @@ exports.updateSubtaskStatus = async (req, res) => {
         res.status(500).send("Error updating subtask status");
     }
 };
+
+exports.updateColumnFilter = async (req, res) => {
+    const { title, newFilter } = req.body;
+    console.log('The body: ', req.body)
+    const user_id = req.session.user_id; // Assuming user_id is stored in session
+
+    if (!user_id) {
+        return res.status(401).send({ message: "User not authenticated" });
+    }
+
+    try {
+        // Determine which column's filter needs to be updated
+        const filterFieldMap = {
+            "To Do": "toDoFilter",
+            "In Progress": "inProgressFilter",
+            "Completed": "doneFilter"
+        };
+
+        const filterField = filterFieldMap[title];
+        console.log('The column ID: ', title)
+        console.log('The filterField: ', filterField)
+        if (!filterField) {
+            return res.status(400).send({ message: "Invalid column ID" });
+        }
+
+        // Fetch the user data to update the settings
+        const user = await prisma.user_data.findUnique({
+            where: { id: user_id }
+        });
+
+        if (!user) {
+            return res.status(404).send({ message: "User not found" });
+        }
+
+        // Update the filter for the specific column
+        const updatedUser = await prisma.user_data.update({
+            where: { id: user_id },
+            data: {
+                settings: {
+                    ...user.settings,
+                    [filterField]: newFilter
+                }
+            }
+        });
+
+        user.settings = updatedUser.settings;
+        res.send({ message: "Filter updated successfully", settings: updatedUser.settings });
+    } catch (error) {
+        console.error("Error updating column filter:", error);
+        res.status(500).send("Error updating column filter");
+    }
+};
+
+
 // exports.calculatePriority = async (req, res) => {
 
 //   try {

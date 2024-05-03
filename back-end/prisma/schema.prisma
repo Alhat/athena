@@ -20,8 +20,11 @@ type UserDataCanvasCourses {
 }
 
 type UserDataSettings {
-  notifications Boolean
-  theme         String
+  notifications    Boolean
+  theme            String
+  toDoFilter       String
+  inProgressFilter String
+  doneFilter       String
 }
 
 type UserDataUserStats {

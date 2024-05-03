@@ -6,6 +6,7 @@ import { AddIcon } from "@chakra-ui/icons";
 import ImportButton from "./ImportButton";
 import { Task_interface, TaskDataSubTasks } from "../types/Task";
 import axios from "axios";
+import FilterMenu from "./FilterMenu";
 
 // type TaskDataSubTasks = {
 //     description: string;
@@ -46,17 +47,19 @@ const AltColumn: React.FC<ColumnProps> = ({
     deleteTask,
     updateTask,
     onCreateTask,
-    fetchTasks
+    fetchTasks,
 }) => {
-
-    const [updatedSubTasks, setUpdatedSubTasks] = useState<TaskDataSubTasks[]>([]);
+    const [updatedSubTasks, setUpdatedSubTasks] = useState<TaskDataSubTasks[]>(
+        []
+    );
     const handleStatusToggle = async (taskId: string, description: string) => {
-
-        const task = tasks.find(task => task.taskID == taskId);
+        const task = tasks.find((task) => task.taskID == taskId);
         if (!task) {
-            console.log("ALCOLUMN: COULD NOT FIND TASK WITH ID IN HANDLE STATUS TOGGLE!");
+            console.log(
+                "ALCOLUMN: COULD NOT FIND TASK WITH ID IN HANDLE STATUS TOGGLE!"
+            );
             return;
-        } 
+        }
 
         const updatedSubTasks = task.subTasks.map((subtask) => {
             if (subtask.description === description) {
@@ -72,7 +75,7 @@ const AltColumn: React.FC<ColumnProps> = ({
         });
         // setSubTasks(updatedSubTasks);
         const oldSubtasks = task.subTasks; // backup
-        task.subTasks = updatedSubTasks
+        task.subTasks = updatedSubTasks;
 
         const payload = {
             description,
@@ -98,6 +101,32 @@ const AltColumn: React.FC<ColumnProps> = ({
         setUpdatedSubTasks(updatedSubTasks);
     };
 
+    const updateColumnFilter = async (newFilter: string) => {
+        try {
+            console.log('Running updateColumnFilter');
+            const title = column.title;
+            console.log('The title: ', title);
+            const payload = {title, newFilter};
+
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/task/update-column-filter`,
+                payload,
+                { withCredentials: true }
+            );
+
+            if (response.data.message) {
+                console.log('Fetching the tasks after updating the filter');
+                fetchTasks();
+            }
+            else {
+                console.log('NOT Fetching the tasks after updating the filter');
+            }
+        }
+        catch (error) {
+            console.error("Failed to import all tasks:", error);
+        }
+    }
+
     // useEffect(() => {
     //     setSubTasks(task.subTasks);
     // }, [task]);
@@ -117,8 +146,9 @@ const AltColumn: React.FC<ColumnProps> = ({
                     {column.title}
                 </Text>
                 {column.id === "toDo" && (
-                    <ImportButton fetchTasks={fetchTasks} ></ImportButton>
+                    <ImportButton fetchTasks={fetchTasks}></ImportButton>
                 )}
+                <FilterMenu fetchTasks={fetchTasks} updateColumnFilter={updateColumnFilter}></FilterMenu>
             </Flex>
 
             <Droppable droppableId={column.id}>

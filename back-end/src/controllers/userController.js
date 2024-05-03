@@ -294,3 +294,93 @@ exports.getTasks = async (req, res) => {
         res.status(500).send("Server Error");
     }
 };
+
+exports.getTasksFiltered = async (req, res) => {
+    try {
+        console.log('Fetching and filtering tasks for: ' + req.session.user_id);
+        if (!req.session.user_id) {
+            return res.status(401).send({ message: "User not set in session" });
+        }
+
+        // Fetch user settings and tasks sorted by priority
+        const userSettings = await prisma.user_data.findUnique({
+            where: {
+                id: req.session.user_id,
+            },
+            select: {
+                settings: true
+            }
+        });
+
+        const tasks = await prisma.task_data.findMany({
+            where: {
+                user_id: req.session.user_id,
+            },
+            orderBy: {
+                priority: "desc", // Use 'desc' for descending order
+            },
+        });
+
+        if (!userSettings || !tasks) {
+            return res.status(404).send({ message: "User settings or tasks not found" });
+        }
+
+        // Initialize columns
+        let toDoTasks = [], inProgressTasks = [], completedTasks = [];
+
+        // Distribute tasks into columns based on status
+        tasks.forEach(task => {
+            if (task.status === 'to-do') {
+                toDoTasks.push(task);
+            } else if (task.status === 'in-progress') {
+                inProgressTasks.push(task);
+            } else if (task.status === 'completed') {
+                completedTasks.push(task);
+            }
+        });
+
+        // Function to sort tasks based on a key from user settings
+        const sortTasks = (tasks, key) => {
+            return tasks.sort((a, b) => {
+                if (key === 'subtask_completion_percentage') {
+                    return parseFloat(calculateCompletionPercentage(b.sub_tasks)) - parseFloat(calculateCompletionPercentage(a.sub_tasks));
+                }
+                else if (key === 'due_date') {
+                    return  Number(a[key]) - Number(b[key]);
+                }
+                return Number(b[key]) - Number(a[key]);
+            });
+        };
+
+        // Apply sorting based on user settings
+        toDoTasks = sortTasks(toDoTasks, userSettings.settings.toDoFilter);
+        console.log('To Do Filter: ', userSettings.settings.toDoFilter);
+        inProgressTasks = sortTasks(inProgressTasks, userSettings.settings.inProgressFilter);
+        console.log('In Progress Filter: ', userSettings.settings.inProgressFilter);
+        completedTasks = sortTasks(completedTasks, userSettings.settings.doneFilter);
+        console.log('Completed Filter: ', userSettings.settings.doneFilter);
+
+        // Convert BigInt to float and return results
+        const convertTasks = (tasks) => tasks.map(task => ({
+            ...task,
+            due_date: Number(task.due_date),
+        }));
+
+        res.json({
+            toDo: convertTasks(toDoTasks),
+            inProgress: convertTasks(inProgressTasks),
+            completed: convertTasks(completedTasks)
+        });
+    } catch (error) {
+        console.error("Error fetching and filtering tasks:", error);
+        res.status(500).send("Server Error");
+    }
+};
+
+function calculateCompletionPercentage(subTasks) {
+    if (subTasks.length === 0) return "0.00"; // Handle cases with no subtasks
+    const totalSubTasks = subTasks.length;
+    const completedSubTasks = subTasks.filter(task => task.status === "completed").length;
+    const completionPercentage = (completedSubTasks / totalSubTasks) * 100;
+    return completionPercentage.toFixed(2);
+}
