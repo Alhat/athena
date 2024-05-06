@@ -132,7 +132,7 @@ const AltColumn: React.FC<ColumnProps> = ({
     // }, [task]);
 
     return (
-        <Flex rounded="3px" bg="column-bg" w="400px" h="620px" flexDir="column">
+        <Flex rounded="3px" bg="column-bg" w="25%" h="620px" flexDir="column">
             <Flex
                 align="center"
                 justify="space-between" // Spreads out children to start and end of container

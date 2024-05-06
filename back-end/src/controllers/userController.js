@@ -74,6 +74,9 @@ exports.setUser = async (req, res) => {
     const defaultSettings = {
         theme: "light", // Default theme
         notifications: true, // Enable notifications by default
+        toDoFilter: "priority",
+        inProgressFilter: "priority",
+        doneFilter: "priority",
         // Add more settings as needed
     };
 
